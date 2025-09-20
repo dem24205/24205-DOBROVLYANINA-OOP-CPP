@@ -1,24 +1,47 @@
-#include "TextParser.h"
 #include <gtest/gtest.h>
+#include "TextParser.h"
 
-TEST(TextParser, CountsWords) {
+TEST(TextParserTest, ParseBasicLine) {
     TextParser parser;
-    parser.parseLine("Hello, world! Hello 123");
-    parser.parseLine("world");
-
-    const auto& wc = parser.getWordCount();
-
-    EXPECT_EQ(parser.getTotalWords(), 5u);
-    EXPECT_EQ(wc.at("Hello"), 2u);
-    EXPECT_EQ(wc.at("world"), 2u);
-    EXPECT_EQ(wc.at("123"), 1);
+    const std::vector<std::string> result = parser.parseLine("hello world");
+    EXPECT_EQ(result.size(), 2);
+    EXPECT_EQ(result[0], "hello");
+    EXPECT_EQ(result[1], "world");
 }
 
-TEST(TextParser, Separators) {
+TEST(TextParserTest, ParseLineWithPunctuation) {
     TextParser parser;
-    parser.parseLine("");
-    parser.parseLine("! , : \n . & ?");
+    const std::vector<std::string> result = parser.parseLine("Hello, world! Test.");
+    EXPECT_EQ(result.size(), 3);
+    EXPECT_EQ(result[0], "Hello");
+    EXPECT_EQ(result[1], "world");
+    EXPECT_EQ(result[2], "Test");
+}
 
-    EXPECT_EQ(parser.getTotalWords(), 0u);
-    EXPECT_TRUE(parser.getWordCount().empty());
+TEST(TextParserTest, ParseLineWithApostropheAsSeparator) {
+    TextParser parser;
+    const std::vector<std::string> result = parser.parseLine("John's");
+    EXPECT_EQ(result.size(), 2);
+    EXPECT_EQ(result[0], "John");
+    EXPECT_EQ(result[1], "s");
+}
+
+TEST(TextParserTest, ParseEmptyLine) {
+    TextParser parser;
+    const std::vector<std::string> result = parser.parseLine("");
+    EXPECT_TRUE(result.empty());
+}
+
+TEST(TextParserTest, ParseOnlyDelimiters) {
+    TextParser parser;
+    const std::vector<std::string> result = parser.parseLine("!@#$%^&*()");
+    EXPECT_TRUE(result.empty());
+}
+
+TEST(TextParserTest, ParseMixedAlphanumeric) {
+    TextParser parser;
+    const std::vector<std::string> result = parser.parseLine("abc123 def456");
+    EXPECT_EQ(result.size(), 2);
+    EXPECT_EQ(result[0], "abc123");
+    EXPECT_EQ(result[1], "def456");
 }

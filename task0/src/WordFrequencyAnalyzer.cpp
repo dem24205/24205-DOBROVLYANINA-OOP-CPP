@@ -1,32 +1,29 @@
 #include "WordFrequencyAnalyzer.h"
-
 #include <algorithm>
-#include <iomanip>
-#include <sstream>
-#include <map>
-#include <vector>
 
-static std::vector<std::pair<std::string, std::size_t>>
-sortWordByFrequency(const std::map<std::string, std::size_t>& wordCount) {
-    std::vector<std::pair<std::string, std::size_t>>
-    wc(wordCount.begin(), wordCount.end());
-    std::sort(wc.begin(), wc.end(),
-          [](const auto& a, const auto& b) { return a.second > b.second; });
-    return wc;
-}
-
-void WordFrequencyAnalyzer::analyzeWordFrequency(const std::map<std::string,
-    std::size_t>& wordCount, std::size_t totalWords) {
-    const auto wc = sortWordByFrequency(wordCount);
-    std::string itemStat;
-    for (const auto& item : wc) {
-        const double pct = totalWords ? (static_cast<double>(item.second) * 100.0 / static_cast<double>(totalWords)) : 0.0;
-        std::ostringstream os;
-        os << item.first << ';' << item.second << ';' << std::fixed << std::setprecision(6) << pct;
-        frequencyStat.push_back(os.str());
+void WordFrequencyAnalyzer::addWord(const std::vector<std::string>& words) {
+    for (const auto& word : words) {
+        if (!word.empty()) {
+            wordCount[word]++;
+            totalWords++;
+        }
     }
 }
 
-const std::list<std::string> &WordFrequencyAnalyzer::getFrequencyStat() const {
+void WordFrequencyAnalyzer::updateStatistics() {
+    frequencyStat.reserve(wordCount.size());
+    for (const auto& [word, count] : wordCount) {
+        double frequency = totalWords > 0 ?
+            (static_cast<double>(count) * 100.0 / static_cast<double>(totalWords)) : 0.0;
+        frequencyStat.emplace_back(word, count, frequency);
+    }
+    std::sort(frequencyStat.begin(), frequencyStat.end(),
+        [](const WordStat& a, const WordStat& b) {
+            return a.getCount() > b.getCount();
+        });
+}
+
+const std::vector<WordStat> &WordFrequencyAnalyzer::getFrequencyStat() {
+    updateStatistics();
     return frequencyStat;
 }

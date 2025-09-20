@@ -1,19 +1,20 @@
 #ifndef FILEWRITER_H
 #define FILEWRITER_H
 
+#include "WordStat.h"
 #include <fstream>
-#include <list>
 #include <string>
+#include <vector>
 
 class FileWriter {
 private:
     std::string fileName;
     std::ofstream out;
 public:
-    FileWriter(const std::string& fileName);
+    explicit FileWriter(const std::string& fileName);
     ~FileWriter();
     bool isOpen() const;
-    void writeToFile(const std::list<std::string>& frequencyStat);
+    void writeToFile(const std::vector<WordStat>& wordStats);
 };
 
 #endif

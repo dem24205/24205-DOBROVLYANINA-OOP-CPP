@@ -1,5 +1,8 @@
 #include "FileReader.h"
 
+#include <fstream>
+#include <string>
+
 FileReader::FileReader(const std::string &fileName) {
     this->fileName = fileName;
     in.open(fileName);

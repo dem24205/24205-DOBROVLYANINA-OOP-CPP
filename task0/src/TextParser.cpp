@@ -1,7 +1,10 @@
 #include "TextParser.h"
 #include <cctype>
+#include <string>
+#include <vector>
 
-void TextParser::parseLine(const std::string& line) {
+std::vector<std::string> TextParser::parseLine(const std::string& line) {
+    std::vector<std::string> words;
     std::string word;
     for (const char c : line) {
         if (std::isalnum(static_cast<unsigned char>(c))) {
@@ -9,22 +12,13 @@ void TextParser::parseLine(const std::string& line) {
         }
         else {
             if (!word.empty()) {
-                wordCount[word]++;
-                totalWords++;
+                words.push_back(word);
                 word.clear();
             }
         }
     }
     if (!word.empty()) {
-        wordCount[word]++;
-        totalWords++;
+        words.push_back(word);
     }
-}
-
-const std::map<std::string, std::size_t> &TextParser::getWordCount() const {
-    return wordCount;
-}
-
-std::size_t TextParser::getTotalWords() const {
-    return totalWords;
+    return words;
 }

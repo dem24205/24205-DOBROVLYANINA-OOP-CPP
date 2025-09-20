@@ -1,16 +1,21 @@
 #ifndef WORDFREQUENCYANALYZER_H
 #define WORDFREQUENCYANALYZER_H
 
-#include <list>
+#include "WordStat.h"
 #include <map>
 #include <string>
+#include <vector>
 
 class WordFrequencyAnalyzer {
 private:
-    std::list<std::string> frequencyStat;
+    std::map<std::string, std::size_t> wordCount;
+    std::size_t totalWords = 0;
+    std::vector<WordStat> frequencyStat;
+    void updateStatistics();
+
 public:
-    void analyzeWordFrequency(const std::map<std::string, std::size_t>& wordCount, std::size_t totalWords);
-    const std::list<std::string>& getFrequencyStat() const;
+    void addWord(const std::vector<std::string>& words);
+    const std::vector<WordStat>& getFrequencyStat();
 };
 
 #endif

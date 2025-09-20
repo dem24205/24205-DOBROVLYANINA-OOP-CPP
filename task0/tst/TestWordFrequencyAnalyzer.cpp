@@ -1,35 +1,66 @@
 #include "WordFrequencyAnalyzer.h"
 #include <gtest/gtest.h>
 
-TEST(WordFrequencyAnalyzer, ProduceSortedStatByFrequency) {
-    std::map<std::string, std::size_t> wc{
-                {"Hello", 5},
-                {"world", 6},
-                {"123", 10}
-    };
-    std::size_t total = 20;
+TEST(WordFrequencyAnalyzerTest, AddSingleWord) {
     WordFrequencyAnalyzer analyzer;
-    analyzer.analyzeWordFrequency(wc, total);
-    const std::list<std::string>& freqStat = analyzer.getFrequencyStat();
-
-    ASSERT_EQ(freqStat.size(), 3u);
-
-    std::list<std::string> expected = {
-        "123;10;50.000000",
-        "world;6;30.000000",
-        "Hello;5;25.000000"
-    };
-
-    EXPECT_EQ(freqStat, expected);
+    analyzer.addWord({"hello"});
+    const auto stats = analyzer.getFrequencyStat();
+    EXPECT_EQ(stats.size(), 1);
+    EXPECT_EQ(stats[0].getWord(), "hello");
+    EXPECT_EQ(stats[0].getCount(), 1);
+    EXPECT_DOUBLE_EQ(stats[0].getFrequency(), 100.0);
 }
 
-TEST(WordFrequencyAnalyzer, HandlesEmptyInput) {
+TEST(WordFrequencyAnalyzerTest, AddMultipleWords) {
     WordFrequencyAnalyzer analyzer;
+    analyzer.addWord({"hello", "world", "hello"});
 
-    std::map<std::string, std::size_t> wc{};
-    std::size_t total = 0;
+    const auto stats = analyzer.getFrequencyStat();
+    EXPECT_EQ(stats.size(), 2);
 
-    analyzer.analyzeWordFrequency(wc, total);
-    const auto& rows = analyzer.getFrequencyStat();
-    EXPECT_TRUE(rows.empty());
+    EXPECT_EQ(stats[0].getWord(), "hello");
+    EXPECT_EQ(stats[0].getCount(), 2);
+    EXPECT_DOUBLE_EQ(stats[0].getFrequency(), (2.0 / 3.0) * 100.0);
+
+    EXPECT_EQ(stats[1].getWord(), "world");
+    EXPECT_EQ(stats[1].getCount(), 1);
+    EXPECT_DOUBLE_EQ(stats[1].getFrequency(), (1.0 / 3.0) * 100.0);
+}
+
+TEST(WordFrequencyAnalyzerTest, AddEmptyWord) {
+    WordFrequencyAnalyzer analyzer;
+    analyzer.addWord({"hello", "", "world"});
+    const auto stats = analyzer.getFrequencyStat();
+    EXPECT_EQ(stats.size(), 2);
+}
+
+TEST(WordFrequencyAnalyzerTest, SortByFrequencyDescending) {
+    WordFrequencyAnalyzer analyzer;
+    analyzer.addWord({"a", "b", "c", "a", "b", "a"});
+    auto const stats = analyzer.getFrequencyStat();
+    EXPECT_EQ(stats.size(), 3);
+    EXPECT_EQ(stats[0].getWord(), "a");
+    EXPECT_EQ(stats[0].getCount(), 3);
+
+    EXPECT_EQ(stats[1].getWord(), "b");
+    EXPECT_EQ(stats[1].getCount(), 2);
+
+    EXPECT_EQ(stats[2].getWord(), "c");
+    EXPECT_EQ(stats[2].getCount(), 1);
+}
+
+TEST(WordFrequencyAnalyzerTest, MultipleAddCalls) {
+    WordFrequencyAnalyzer analyzer;
+    analyzer.addWord({"hello", "world"});
+    analyzer.addWord({"hello", "test"});
+    auto const stats = analyzer.getFrequencyStat();
+    EXPECT_EQ(stats.size(), 3);
+    EXPECT_EQ(stats[0].getWord(), "hello");
+    EXPECT_EQ(stats[0].getCount(), 2);
+}
+
+TEST(WordFrequencyAnalyzerTest, ZeroTotalWords) {
+    WordFrequencyAnalyzer analyzer;
+    auto const stats = analyzer.getFrequencyStat();
+    EXPECT_TRUE(stats.empty());
 }

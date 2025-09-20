@@ -10,6 +10,8 @@ add_executable(task0
         src/FileWriter.cpp
         src/TextParser.cpp
         src/WordFrequencyAnalyzer.cpp
+        src/WordStat.cpp
+        src/WordStat.h
 )
 
 include(FetchContent)
@@ -35,6 +37,7 @@ target_link_libraries(test_parser PRIVATE GTest::gtest GTest::gtest_main)
 add_executable(test_analyzer
         tst/TestWordFrequencyAnalyzer.cpp
         src/WordFrequencyAnalyzer.cpp
+        src/WordStat.cpp
 )
 target_include_directories(test_analyzer PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(test_analyzer PRIVATE GTest::gtest GTest::gtest_main)
