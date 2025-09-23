@@ -14,7 +14,7 @@ public:
     explicit FileWriter(const std::string& fileName);
     ~FileWriter();
     bool isOpen() const;
-    void writeToFile(const std::vector<WordStat>& wordStats);
+    void write(const std::vector<std::string>& wordStat);
 };
 
 #endif
