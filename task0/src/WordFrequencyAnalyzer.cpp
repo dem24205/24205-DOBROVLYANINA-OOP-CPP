@@ -1,12 +1,16 @@
 #include "WordFrequencyAnalyzer.h"
 #include <algorithm>
 
-void WordFrequencyAnalyzer::addWord(const std::vector<std::string>& words) {
+void WordFrequencyAnalyzer::addWord(const std::string& word) {
+    if (!word.empty()) {
+        wordCount[word]++;
+        totalWords++;
+    }
+}
+
+void WordFrequencyAnalyzer::addWords(const std::vector<std::string>& words) {
     for (const auto& word : words) {
-        if (!word.empty()) {
-            wordCount[word]++;
-            totalWords++;
-        }
+        addWord(word);
     }
 }
 

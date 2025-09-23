@@ -6,13 +6,13 @@
 #include <string>
 #include <vector>
 
-class FileWriter {
+class CSVFileWriter {
 private:
     std::string fileName;
     std::ofstream out;
 public:
-    explicit FileWriter(const std::string& fileName);
-    ~FileWriter();
+    explicit CSVFileWriter(const std::string& fileName);
+    ~CSVFileWriter();
     bool isOpen() const;
     void write(const std::vector<std::string>& wordStat);
 };

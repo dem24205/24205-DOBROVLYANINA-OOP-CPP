@@ -13,7 +13,7 @@ TEST(WordFrequencyAnalyzerTest, AddSingleWord) {
 
 TEST(WordFrequencyAnalyzerTest, AddMultipleWords) {
     WordFrequencyAnalyzer analyzer;
-    analyzer.addWord({"hello", "world", "hello"});
+    analyzer.addWords({"hello", "world", "hello"});
 
     const auto stats = analyzer.getFrequencyStat();
     EXPECT_EQ(stats.size(), 2);
@@ -29,14 +29,14 @@ TEST(WordFrequencyAnalyzerTest, AddMultipleWords) {
 
 TEST(WordFrequencyAnalyzerTest, AddEmptyWord) {
     WordFrequencyAnalyzer analyzer;
-    analyzer.addWord({"hello", "", "world"});
+    analyzer.addWords({"hello", "", "world"});
     const auto stats = analyzer.getFrequencyStat();
     EXPECT_EQ(stats.size(), 2);
 }
 
 TEST(WordFrequencyAnalyzerTest, SortByFrequencyDescending) {
     WordFrequencyAnalyzer analyzer;
-    analyzer.addWord({"a", "b", "c", "a", "b", "a"});
+    analyzer.addWords({"a", "b", "c", "a", "b", "a"});
     auto const stats = analyzer.getFrequencyStat();
     EXPECT_EQ(stats.size(), 3);
     EXPECT_EQ(stats[0].getWord(), "a");

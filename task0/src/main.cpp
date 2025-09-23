@@ -1,8 +1,10 @@
 #include "FileReader.h"
-#include "FileWriter.h"
+#include "CSVFileWriter.h"
 #include "TextParser.h"
 #include "WordFrequencyAnalyzer.h"
+#include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <string>
 
 int main(int argc, char* argv[]) {
@@ -23,15 +25,26 @@ int main(int argc, char* argv[]) {
     while (!reader.isEOF()) {
         const std::string line = reader.getLine();
         const std::vector<std::string> words = parser.parseLine(line);
-        analyzer.addWord(words);
+        analyzer.addWords(words);
     }
 
-    FileWriter writer(argv[2]);
+    CSVFileWriter writer(argv[2]);
     if (!writer.isOpen()) {
         std::cerr << "Error: Cannot open output file: " << argv[2] << "\n";
         return 1;
     }
 
-    writer.writeToFile(analyzer.getFrequencyStat());
-    return 0;
+    std::vector<WordStat> stats = analyzer.getFrequencyStat();
+
+    writer.write({"word", "count", "percent"});
+    for (const auto& wordStat : stats) {
+        std::ostringstream freqStream;
+        freqStream << std::fixed << std::setprecision(3) << wordStat.getFrequency();
+        std::vector<std::string> row = {
+            wordStat.getWord(),
+            std::to_string(wordStat.getCount()),
+            freqStream.str()
+        };
+        writer.write(row);
+    }
 }

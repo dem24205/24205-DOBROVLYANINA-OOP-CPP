@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_executable(task0
         src/main.cpp
         src/FileReader.cpp
-        src/FileWriter.cpp
+        src/CSVFileWriter.cpp
         src/TextParser.cpp
         src/WordFrequencyAnalyzer.cpp
         src/WordStat.cpp

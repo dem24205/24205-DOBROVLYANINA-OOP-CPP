@@ -14,7 +14,8 @@ private:
     void updateStatistics();
 
 public:
-    void addWord(const std::vector<std::string>& words);
+    void addWord(const std::string& word);
+    void addWords(const std::vector<std::string> &words);
     const std::vector<WordStat>& getFrequencyStat();
 };
 
