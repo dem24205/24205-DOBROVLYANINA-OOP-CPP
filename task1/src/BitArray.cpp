@@ -8,7 +8,7 @@ static void checkArgument(const int arg) {
     }
 }
 
-static void checkBitPos(int bitPos, size_t arraySize) {
+static void checkBitPos(const int bitPos, const size_t arraySize) {
     if (bitPos < 0 || static_cast<size_t>(bitPos) >= arraySize) {
         throw std::out_of_range("BitArray index out of range");
     }
@@ -192,6 +192,30 @@ void BitArray::push_back(const bool bit) {
     set(static_cast<int>(arraySize - 1), bit);
 }
 
+BitArray::BitReference::operator bool() const {
+    return static_cast<const BitArray&>(bitArray).operator[](bitPos);
+}
+
+BitArray::BitReference& BitArray::BitReference::operator=(const bool value) {
+    bitArray.set(bitPos, value);
+    return *this; //assignment chain support
+}
+
+BitArray::BitReference& BitArray::BitReference::operator=(const BitReference& other) {
+    const bool value = static_cast<bool>(other); //explicit call of the bool operator
+    bitArray.set(bitPos, value);
+    return *this;
+}
+
+BitArray::BitReference BitArray::operator[](const int bitPos) {
+    if (arraySize == 0) {
+        throw std::out_of_range("BitArray is empty");
+    }
+    checkBitPos(bitPos, arraySize);
+    return {*this, bitPos};
+}
+
+
 bool BitArray::any() const {
     if (array == nullptr) return false;
     for (size_t i = 0; i < capacity; ++i) {
@@ -311,7 +335,7 @@ std::string BitArray::toString() const {
     std::string result;
     result.reserve(arraySize);
     for (size_t i = 0; i < arraySize; ++i) {
-        result += (operator[](i) ? '1' : '0');
+        result += (operator[](static_cast<int>(i)) ? '1' : '0');
     }
     std::reverse(result.begin(), result.end());
     return result;
@@ -362,7 +386,7 @@ BitArray operator|(const BitArray &b1, const BitArray &b2) {
 bool operator==(const BitArray &b1, const BitArray &b2) {
     if (b1.size() != b2.size()) return false;
     for (size_t i = 0; i < b1.size(); ++i) {
-        if (b1[i] != b2[i]) {
+        if (b1[static_cast<int>(i)] != b2[static_cast<int>(i)]) {
             return false;
         }
     }

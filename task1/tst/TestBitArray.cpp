@@ -475,8 +475,8 @@ TEST(BitArrayTest, BitwiseANDOperatorNew) {
     }
 
     {
-        BitArray b1(8);
-        BitArray b2(16);
+        const BitArray b1(8);
+        const BitArray b2(16);
         EXPECT_THROW(b1 & b2, std::invalid_argument);
     }
 }
@@ -600,5 +600,38 @@ TEST(BitArrayTest, CountMethod) {
             ba.set(i, true);
         }
         EXPECT_EQ(ba.count(), 334);
+    }
+}
+
+TEST(BitArrayTest, ProxyReadWrite) {
+    BitArray ba(8);
+    ba[0] = true;
+    ba[3] = true;
+    ba[7] = true;
+    EXPECT_EQ(ba.toString(), "10001001");
+}
+
+TEST(BitArrayTest, ProxyChainAssignment) {
+    BitArray ba(8);
+    ba[0] = true;
+    ba[1] = ba[0];
+    ba[2] = false;
+    ba[3] = ba[2];
+    EXPECT_EQ(ba.toString(), "00000011");
+}
+
+TEST(BitArrayTest, ProxyOutOfRange) {
+    {
+        BitArray ba(5);
+        EXPECT_THROW(ba[-1] = true, std::out_of_range);
+        EXPECT_THROW(ba[5] = false, std::out_of_range);
+        EXPECT_THROW(bool b = ba[-1], std::out_of_range);
+        EXPECT_THROW(bool b = ba[5], std::out_of_range);
+    }
+
+    {
+        BitArray ba(0);
+        EXPECT_THROW(ba[0] = true, std::out_of_range);
+        EXPECT_THROW(bool b = ba[0], std::out_of_range);
     }
 }
