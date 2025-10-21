@@ -1,9 +1,10 @@
 #ifndef GAMEOFLIFE_H
 #define GAMEOFLIFE_H
 
-#include "ConsoleInterface.h"
 #include "GameConfig.h"
 #include "GameEngine.h"
+#include "ConsoleInterface.h"
+#include "Command.h"  // теперь здесь GameStatus и ICommand
 
 class GameOfLife {
 private:
@@ -16,6 +17,10 @@ private:
     void runOnline();
     void runOffline();
     void createLifeFile();
+    friend class TickCommand;  // нужно будет реализовать команды в .cpp
+    friend class AutoCommand;
+    friend class DumpCommand;
+    friend class ExitCommand;
 public:
     explicit GameOfLife(const GameConfig& config)
         : engine(config),

@@ -14,6 +14,8 @@ add_executable(task2
         src/LifeFileWriter.cpp
         src/LifeParser.cpp
         src/LifeFileReader.cpp
+        src/Command.cpp
+        src/Command.h
 )
 
 # Подключаем Google Test

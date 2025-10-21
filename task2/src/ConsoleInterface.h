@@ -4,8 +4,6 @@
 #include <string>
 #include <vector>
 
-enum class GameStatus {Continue, Exit};
-
 class Cmd {
 private:
     std::string name;
@@ -28,7 +26,8 @@ public:
         int iterations);
     static void printWarning(const std::string& msg);
     static void printError(const std::string& msg);
-    static void flushWarnings();  // вывести все накопленные предупреждения
+    static void flushWarnings();
 };
+
 void printHelp();
 #endif
