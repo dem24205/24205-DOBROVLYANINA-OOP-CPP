@@ -4,90 +4,68 @@
 #include <iostream>
 #include <windows.h>
 
-class TickCommand : public ICommand {
-private:
-    int iterations = 1;
-public:
-    explicit TickCommand(const std::string& attr) {
-        try {
-            iterations = std::stoi(attr);
-        } catch (...) {
-            iterations = 1;
-        }
-        if (iterations <= 0) {
-            iterations = 1;
-        }
-    };
-
-    GameStatus execute(GameOfLife& game) override {
-        game.engine.countGenerations(iterations);
-        game.generalIterations += iterations;  // ← ДОБАВЬ ЭТУ СТРОЧКУ!
-        return GameStatus::Continue;
+::TickCommand::TickCommand(const std::string &attr) {
+    try {
+        iteration = std::stoi(attr);
     }
-};
-
-class AutoCommand : public ICommand {
-private:
-    int iterations = 1;
-public:
-    explicit AutoCommand(const std::string& attr) {
-        try {
-            iterations = std::stoi(attr);
-        } catch (...) {
-            iterations = 1;
-        }
-        if (iterations <= 0) {
-            iterations = 1;
-        }
-    };
-
-    GameStatus execute(GameOfLife& game) override {
-        for (int i = 0; i < iterations; i++) {
-            ++game.generalIterations;
-            game.engine.countNextGeneration();
-            ConsoleInterface::printInterface(game.engine.getGrid(),
-                game.engine.getBirthRules(), game.engine.getSurvivalRules(),
-                game.engine.getUniverseName(), game.generalIterations);
-            Sleep(200);
-        }
-        return GameStatus::Continue;
+    catch (...) {
+        iteration = 1;
     }
-};
-
-
-class DumpCommand : public ICommand {
-private:
-    std::string filename;
-public:
-    explicit DumpCommand(const std::string& userFilename) : filename(userFilename) {};
-    GameStatus execute(GameOfLife& game) override {
-        game.filename = filename;
-        game.createLifeFile();
-        return GameStatus::Continue;
+    if (iteration <= 0) {
+        iteration = 1;
     }
-};
+}
 
-class HelpCommand : public ICommand {
-private:
-public:
-    GameStatus execute(GameOfLife& game) override {
-        printHelp();
-        std::cin.ignore();
-        return GameStatus::Continue;
+GameStatus TickCommand::execute(GameOfLife &game) {
+    game.engine.countGenerations(iteration);
+    game.generalIterations += iteration;
+    return GameStatus::Continue;
+}
+
+::AutoCommand::AutoCommand(const std::string &attr) {
+    try {
+        iteration = std::stoi(attr);
     }
-};
-
-class ExitCommand : public ICommand {
-public:
-    GameStatus execute(GameOfLife& game) override {
-        return GameStatus::Exit;
+    catch (...) {
+        iteration = 1;
     }
-};
+    if (iteration <= 0) {
+        iteration = 1;
+    }
+}
 
-std::unique_ptr<ICommand> CommandFactory::createCommand(const Cmd& cmd) {
-    std::string name = cmd.getName();
+GameStatus AutoCommand::execute(GameOfLife &game) {
+    for (int i = 0; i < iteration; i++) {
+        ++game.generalIterations;
+        game.engine.countNextGeneration();
+        ConsoleInterface::printInterface(game.engine.getGrid(),
+            game.engine.getBirthRules(), game.engine.getSurvivalRules(),
+            game.engine.getUniverseName(), game.generalIterations);
+        Sleep(200);
+    }
+    return GameStatus::Continue;
+}
+
+GameStatus DumpCommand::execute(GameOfLife &game) {
+    game.filename = filename;
+    game.createLifeFile();
+    return GameStatus::Continue;
+}
+
+
+GameStatus HelpCommand::execute(GameOfLife &game) {
+    printHelp();
+    std::cin.ignore();
+    return GameStatus::Continue;
+}
+
+GameStatus ExitCommand::execute(GameOfLife &game) {
+    return GameStatus::Exit;
+}
+
+std::unique_ptr<ICommand> CommandFactory::createCommand(const Cmd &cmd) {
+    const std::string name = cmd.getName();
     std::string attr = cmd.getAttribute();
-
     if (name == "tick" || name == "t") {
         return std::make_unique<TickCommand>(attr);
     }
