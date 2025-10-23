@@ -4,7 +4,7 @@
 #include "GameConfig.h"
 #include "GameEngine.h"
 #include "ConsoleInterface.h"
-#include "Command.h"  // теперь здесь GameStatus и ICommand
+#include "Command.h"
 
 class GameOfLife {
 private:
@@ -17,7 +17,7 @@ private:
     void runOnline();
     void runOffline();
     void createLifeFile();
-    friend class TickCommand;  // нужно будет реализовать команды в .cpp
+    friend class TickCommand;
     friend class AutoCommand;
     friend class DumpCommand;
     friend class ExitCommand;

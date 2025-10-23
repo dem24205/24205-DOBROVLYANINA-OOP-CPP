@@ -1,46 +1,48 @@
 #ifndef COMMAND_H
 #define COMMAND_H
 
-#include <memory>
 #include "ConsoleInterface.h"
+#include <memory>
 
 class GameOfLife;
 
 enum class GameStatus {Continue, Exit};
 
-class ICommand {
+class Command {
 public:
-    virtual ~ICommand() = default;
+    virtual ~Command() = default;
     virtual GameStatus execute(GameOfLife& game) = 0;
 };
 
-class TickCommand : public ICommand {
+class TickCommand : public Command {
 private:
+    int isCorrectAttr = false;
     int iteration;
 public:
     explicit TickCommand(const std::string& attr);
     GameStatus execute(GameOfLife& game) override;
 };
 
-class AutoCommand : public ICommand {
+class AutoCommand : public Command {
 private:
+    int isCorrectAttr = false;
     int iteration;
 public:
     explicit AutoCommand(const std::string& attr);
     GameStatus execute(GameOfLife& game) override;
 };
 
-class ExitCommand : public ICommand {
+class ExitCommand : public Command {
 public :
     GameStatus execute(GameOfLife& game) override;
 };
 
-class HelpCommand : public ICommand {
+class HelpCommand : public Command {
 public:
     GameStatus execute(GameOfLife& game) override;
 };
 
-class DumpCommand : public ICommand {
+class DumpCommand : public Command {
 private:
     std::string filename;
 public:
@@ -50,7 +52,7 @@ public:
 
 class CommandFactory {
 public:
-    static std::unique_ptr<ICommand> createCommand(const Cmd &cmd);
+    static std::unique_ptr<Command> createCommand(const Cmd &cmd);
 };
 
 #endif

@@ -13,6 +13,13 @@ private:
     std::vector<int> survivalRules;
     std::string universeName;
     GameVersion version;
+    void setSnowflakePattern();
+    void setPulsarPattern();
+    void setGliderPattern();
+    void setBlinkerPattern();
+    void setPentominoPattern();
+    void setDiehardPattern();
+    void set101Pattern();
     void setRandomGridPattern();
 public:
     explicit GameEngine(const GameConfig& config);
