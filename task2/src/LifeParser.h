@@ -12,14 +12,14 @@ private:
     LifeFileReader reader;
     bool hasFile = false;
 public:
-    explicit LifeParser(int argc, char** argv);
-    void parseCommandLineArgs(GameConfig& config, int argc, char** argv, bool& hasIterations, bool& hasOutput);
-    std::string parseUniverseName(const std::string& nameLine);
-    std::vector<int> parseBirthCondition(const std::string& birthConditionLine);
-    std::vector<int> parseSurvivalCondition(const std::string& survivalConditionLine);
-    std::pair<int, int> parseGridSize(const std::string& gridSizeLine);
+    explicit LifeParser(const std::string& filename);
+    static void parseCommandLineArgs(GameConfig& config, int argc, char** argv, bool& hasIterations, bool& hasOutput);
+    static std::string parseUniverseName(const std::string& nameLine);
+    static std::vector<int> parseBirthCondition(const std::string& birthConditionLine);
+    static std::vector<int> parseSurvivalCondition(const std::string& survivalConditionLine);
+    static std::pair<int, int> parseGridSize(const std::string& gridSizeLine);
     std::vector<std::pair<int, int>> parseAliveCells();
-    void handleParsing(GameConfig& config, int argc, char **argv);
+    GameConfig handleParsing(int argc, char **argv);
 };
 
 #endif

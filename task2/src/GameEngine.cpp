@@ -9,10 +9,15 @@ GameEngine::GameEngine(const GameConfig& config)
 
     if (version == GameVersion::Batch) {
         const auto& aliveCells = config.getAliveCells();
-        for (const auto [fst, snd] : aliveCells) {
-            grid.setCell(fst, snd);
+        if (aliveCells.empty()) {
+            setGliderPattern();
         }
-
+        else {
+            for (const auto [fst, snd] : aliveCells) {
+                grid.setCell(fst, snd);
+            }
+        }
+        return;
     }
     if (version == GameVersion::Demo) {
         setRandomGridPattern();

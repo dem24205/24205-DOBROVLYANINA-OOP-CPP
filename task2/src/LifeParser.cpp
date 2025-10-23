@@ -1,17 +1,18 @@
 #include "ConsoleInterface.h"
 #include "LifeParser.h"
-
 #include <set>
 #include <sstream>
 #include <vector>
+#include <iostream>
 
-LifeParser::LifeParser(int argc, char **argv)
-    : reader(argc > 1 ? argv[1] : ""),  // инициализация в списке
-      hasFile(argc > 1) {
-    if (hasFile) {
+LifeParser::LifeParser(const std::string &filename): reader(filename) {
+    if (!filename.empty()) {
         reader.open();
         if (!reader.isOpen()) {
             hasFile = false;
+        }
+        else {
+            hasFile = true;
         }
     }
 }
@@ -30,97 +31,73 @@ std::string LifeParser::parseUniverseName(const std::string& nameLine) {
 }
 
 std::vector<int> LifeParser::parseBirthCondition(const std::string& birthConditionLine) {
-    std::vector<int> birthRules;
     const size_t start = birthConditionLine.find('B');
     const size_t end = birthConditionLine.find('/');
     if (start == std::string::npos || end == std::string::npos) {
-        ConsoleInterface::printWarning("Cannot find birth rules. Default value will be used.");
-        return {3}; // default B3
+        ConsoleInterface::printWarning("Invalid birth rules format. Default B3 will be used.");
+        return {3};
     }
-    const std::string data = birthConditionLine.substr(start + 1, end - start);
-    for (const char ch : data) {
+    std::vector<int> birthRules;
+    for (const char ch : birthConditionLine.substr(start + 1, end - start - 1)) {
         if (std::isdigit(ch)) {
-            birthRules.push_back(ch - '0');
+            const int rule = ch - '0';
+            if (rule >= 0 && rule <= 8) {
+                birthRules.push_back(rule);
+            }
         }
     }
     if (birthRules.empty()) {
-        ConsoleInterface::printWarning("Birth rules are empty. Default value will be used.");
+        ConsoleInterface::printWarning("No valid birth rules found. Default B3 will be used.");
         return {3};
-    }
-    for (const int rule : birthRules) {
-        if (rule < 0 || rule > 8) {
-            ConsoleInterface::printWarning("Birth rule " + std::to_string(rule) + " is invalid. Rules must be 0-8.");
-            ConsoleInterface::printWarning("Default value will be used.");
-            return {3};
-        }
     }
     return birthRules;
 }
 
 std::vector<int> LifeParser::parseSurvivalCondition(const std::string& survivalConditionLine) {
-    std::vector<int> survivalRules;
     const size_t start = survivalConditionLine.find('S');
     if (start == std::string::npos) {
-        ConsoleInterface::printWarning("Cannot find survival rule. Default value will be used.");
-        return {2, 3}; // default S23
+        ConsoleInterface::printWarning("Invalid survival rules format. Default S23 will be used.");
+        return {2, 3};
     }
-    const std::string data = survivalConditionLine.substr(start + 1);
-    for (const char ch : data) {
+    std::vector<int> survivalRules;
+    for (const char ch : survivalConditionLine.substr(start + 1)) {
         if (std::isdigit(ch)) {
-            survivalRules.push_back(ch - '0');
+            const int rule = ch - '0';
+            if (rule >= 0 && rule <= 8) {
+                survivalRules.push_back(rule);
+            }
         }
     }
     if (survivalRules.empty()) {
-        ConsoleInterface::printWarning("Survival rules are empty. Default value will be used.");
+        ConsoleInterface::printWarning("No valid survival rules found. Default S23 will be used.");
         return {2, 3};
-    }
-    for (const int rule : survivalRules) {
-        if (rule < 0 || rule > 8) {
-            ConsoleInterface::printWarning("Survival rule " + std::to_string(rule) + " is invalid. Rules must be 0-8.");
-            ConsoleInterface::printWarning("Default value will be used.");
-            return {2, 3};
-        }
     }
     return survivalRules;
 }
 
 std::pair<int, int> LifeParser::parseGridSize(const std::string& gridSizeLine) {
-    size_t start = gridSizeLine.find('C') + 1;
-    const size_t end = gridSizeLine.find('/');
-    if (start == std::string::npos || end == std::string::npos) {
-        ConsoleInterface::printWarning("Cannot find size of grid. Default value will be used.");
-        return {35, 35}; // default
-    }
-    if (start >= end) {
-        ConsoleInterface::printWarning("Invalid column size. Default value will be used.");
+    size_t cPos = gridSizeLine.find('C');
+    size_t slashPos = gridSizeLine.find('/');
+    size_t rPos = gridSizeLine.find('R');
+    if (cPos == std::string::npos || slashPos == std::string::npos || rPos == std::string::npos) {
+        ConsoleInterface::printWarning("Invalid grid size format. Default 35x35 will be used.");
         return {35, 35};
     }
-    const std::string colStr = gridSizeLine.substr(start, end - start);
-    for (const char c : colStr) {
-        if (!std::isdigit(c)) {
-            ConsoleInterface::printWarning("Invalid column size format. Default value will be used.");
-            return {35, 35};
+
+    const std::string colStr = gridSizeLine.substr(cPos + 1, slashPos - cPos - 1);
+    const std::string rowStr = gridSizeLine.substr(rPos + 1);
+
+    try {
+        int column = std::stoi(colStr);
+        int row = std::stoi(rowStr);
+        if (column > 0 && row > 0) {
+            return {column, row};
         }
     }
-    start = gridSizeLine.find('R') + 1;
-    if (start == std::string::npos) {
-        ConsoleInterface::printWarning("Cannot find row size. Default value will be used.");
-        return {35, 35}; // default
+    catch (...) {
     }
-    const std::string rowStr = gridSizeLine.substr(start);
-    for (const char c : rowStr) {
-        if (!std::isdigit(c)) {
-            ConsoleInterface::printWarning("Invalid row size format. Default value will be used.");
-            return {35, 35};
-        }
-    }
-    const int column = std::stoi(colStr);
-    const int row = std::stoi(rowStr);
-    if (column <= 0 || row <= 0) {
-        ConsoleInterface::printWarning("Grid size must be positive. Default value will be used.");
-        return {35, 35};
-    }
-    return {column, row};
+    ConsoleInterface::printWarning("Invalid grid size. Default 35x35 will be used.");
+    return {35, 35};
 }
 
 std::vector<std::pair<int, int>> LifeParser::parseAliveCells() {
@@ -131,18 +108,16 @@ std::vector<std::pair<int, int>> LifeParser::parseAliveCells() {
         if (line.empty()) continue;
         std::istringstream iss(line);
         int x, y;
-        if (iss >> x >> y) {
-            auto cell = std::make_pair(x, y);
-            if (uniqueCells.count(cell)) {
-                ConsoleInterface::printWarning("Duplicate cell coordinates (" +
-                    std::to_string(x) + "," + std::to_string(y) + ") ignored.");
-            } else {
-                cells.push_back(cell);
-                uniqueCells.insert(cell);
-            }
-        } else {
-            ConsoleInterface::printWarning("Invalid cell format in line: " + line);
+        if (!(iss >> x >> y)) {
+            ConsoleInterface::printWarning("Invalid cell format: " + line);
+            continue;
         }
+        auto cell = std::make_pair(x, y);
+        if (!uniqueCells.insert(cell).second) {
+            ConsoleInterface::printWarning("Duplicate cell (" + std::to_string(x) + "," + std::to_string(y) + ") ignored.");
+            continue;
+        }
+        cells.push_back(cell);
     }
     return cells;
 }
@@ -172,30 +147,24 @@ void LifeParser::parseCommandLineArgs(GameConfig& config, const int argc, char**
     }
 }
 
-void LifeParser::handleParsing(GameConfig &config, int argc, char **argv) {
+GameConfig LifeParser::handleParsing(const int argc, char **argv) {
+    GameConfig config;
     if (!hasFile) {
-        return;
+        return config;
     }
-
     bool hasIterations = false;
     bool hasOutput = false;
-
     parseCommandLineArgs(config, argc, argv, hasIterations, hasOutput);
+    config.setGameMode(hasIterations || hasOutput ? GameMode::Offline : GameMode::Online);
     std::string format = reader.getLine();
     if (!isRightFormat(format)) {
-        ConsoleInterface::printWarning("File is not in Life 1.06 format. Using demo configuration.");
-        if (hasIterations || hasOutput) {
-            config.setGameMode(GameMode::Offline);
-        } else {
-            config.setGameMode(GameMode::Online);
-        }
-        return;
+        ConsoleInterface::printWarning("File is not in Life 1.06 format. Demo universe will be used.");
+        return config;
     }
-
+    config.setGameVersion(GameVersion::Batch);
     const std::string universeNameLine = reader.getLine();
     const std::string rulesLine = reader.getLine();
     const std::string gridSizeLine = reader.getLine();
-
 
     const std::string name = parseUniverseName(universeNameLine);
     const std::vector<int> birth = parseBirthCondition(rulesLine);
@@ -208,18 +177,11 @@ void LifeParser::handleParsing(GameConfig &config, int argc, char **argv) {
     config.setSize(w, h);
 
     std::vector<std::pair<int, int>> cells = parseAliveCells();
-
     if (cells.empty()) {
-        ConsoleInterface::printWarning("No alive cells found in file. Using random universe");
-        config.setGameVersion(GameVersion::Demo);
-    } else {
+        ConsoleInterface::printWarning("No alive cells found in file. Simple Glider universe will be used.");
+    }
+    else {
         config.setAliveCells(cells);
-        config.setGameVersion(GameVersion::Batch);
     }
-
-    if (hasIterations || hasOutput) {
-        config.setGameMode(GameMode::Offline);
-    } else {
-        config.setGameMode(GameMode::Online);
-    }
+    return config;
 }

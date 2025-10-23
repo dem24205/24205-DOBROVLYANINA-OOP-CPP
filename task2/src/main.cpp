@@ -5,13 +5,15 @@
 
 int main(int argc, char* argv[]) {
     SetConsoleOutputCP(65001);
-    LifeParser parser(argc, argv);
-    GameConfig config;
-    parser.handleParsing(config, argc, argv);
+    std::string filename;
+    if (argc > 1) {
+        filename = argv[1];
+    }
+    LifeParser parser(filename);
+    GameConfig config = parser.handleParsing(argc, argv);
     GameOfLife game(config);
     game.start();
     return 0;
 }
 
-//test.life
-//test.life -i=100 -o=out_universe
+//TODO: дописать тесты для нового парсера

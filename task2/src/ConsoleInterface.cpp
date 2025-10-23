@@ -11,8 +11,8 @@ Cmd::Cmd(const std::string &cmd) {
     }
     name = cmd.substr(0, firstSpace);
     attribute = cmd.substr(firstSpace + 1);
-    size_t start = attribute.find_first_not_of(" ");
-    size_t end = attribute.find_last_not_of(" ");
+    size_t start = attribute.find_first_not_of(' ');
+    size_t end = attribute.find_last_not_of(' ');
     if (start != std::string::npos && end != std::string::npos) {
         attribute = attribute.substr(start, end - start + 1);
     } else {

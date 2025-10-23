@@ -29,7 +29,6 @@ set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 add_executable(test_game_of_life
-        tst/TestLifeParser.cpp
         tst/TestGameEngine.cpp
         tst/TestConsoleInterface.cpp
         src/GameConfig.cpp
@@ -41,6 +40,7 @@ add_executable(test_game_of_life
         src/LifeParser.cpp
         src/LifeFileReader.cpp
         tst/TestGrid.cpp
+        src/Command.cpp
 )
 
 target_include_directories(task2 PRIVATE ${CMAKE_SOURCE_DIR}/src)

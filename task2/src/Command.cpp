@@ -1,7 +1,6 @@
 #include "Command.h"
 #include "ConsoleInterface.h"
 #include "GameOfLife.h"
-
 #include <iostream>
 #include <windows.h>
 
@@ -20,7 +19,7 @@
 
 GameStatus TickCommand::execute(GameOfLife &game) {
     if (iteration <= 0) {
-        ConsoleInterface::printError("[ERROR]: Invalid command. Type 'help' for usage.");
+        ConsoleInterface::printError("Invalid command. Type 'help' for usage.");
         return GameStatus::Continue;
     }
     game.engine.countGenerations(iteration);
@@ -43,7 +42,7 @@ GameStatus TickCommand::execute(GameOfLife &game) {
 
 GameStatus AutoCommand::execute(GameOfLife &game) {
     if (iteration <= 0) {
-        ConsoleInterface::printError("[ERROR]: Invalid command. Type 'help' for usage.");
+        ConsoleInterface::printError("Invalid command. Type 'help' for usage.");
         return GameStatus::Continue;
     }
     for (int i = 0; i < iteration; i++) {
@@ -62,7 +61,6 @@ GameStatus DumpCommand::execute(GameOfLife &game) {
     game.createLifeFile();
     return GameStatus::Continue;
 }
-
 
 GameStatus HelpCommand::execute(GameOfLife &game) {
     printHelp();

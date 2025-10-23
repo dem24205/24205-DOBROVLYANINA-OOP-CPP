@@ -11,13 +11,11 @@ void GameOfLife::start() {
 }
 
 GameStatus GameOfLife::handleCmd(const Cmd& cmd) {
-    auto command = CommandFactory::createCommand(cmd);
-
+    const auto command = CommandFactory::createCommand(cmd);
     if (!command) {
         ConsoleInterface::printError("Unknown command. Type 'help' for usage.");
         return GameStatus::Continue;
     }
-
     return command->execute(*this);
 }
 
