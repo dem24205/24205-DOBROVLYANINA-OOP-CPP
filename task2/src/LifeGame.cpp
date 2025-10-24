@@ -1,8 +1,8 @@
-#include "GameOfLife.h"
+#include "LifeGame.h"
 #include "LifeFileWriter.h"
 #include <iostream>
 
-void GameOfLife::start() {
+void LifeGame::start() {
     if (mode == GameMode::Offline) {
         runOffline();
         return;
@@ -10,7 +10,7 @@ void GameOfLife::start() {
     runOnline();
 }
 
-GameStatus GameOfLife::handleCmd(const Cmd& cmd) {
+GameStatus LifeGame::handleCmd(const Cmd& cmd) {
     const auto command = CommandFactory::createCommand(cmd);
     if (!command) {
         ConsoleInterface::printError("Unknown command. Type 'help' for usage.");
@@ -19,7 +19,7 @@ GameStatus GameOfLife::handleCmd(const Cmd& cmd) {
     return command->execute(*this);
 }
 
-void GameOfLife::runOnline() {
+void LifeGame::runOnline() {
     auto status = GameStatus::Continue;
     while (status == GameStatus::Continue) {
         ConsoleInterface::flushWarnings();
@@ -31,7 +31,7 @@ void GameOfLife::runOnline() {
     }
 }
 
-void GameOfLife::createLifeFile() {
+void LifeGame::createLifeFile() {
     filename += ".life";
     LifeFileWriter writer(filename);
     writer.printString("#Life 1.06\n");
@@ -65,7 +65,7 @@ void GameOfLife::createLifeFile() {
     }
 }
 
-void GameOfLife::runOffline() {
+void LifeGame::runOffline() {
     ConsoleInterface::flushWarnings();
     engine.countGenerations(offlineIterations);
     createLifeFile();

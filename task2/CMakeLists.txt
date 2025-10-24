@@ -9,7 +9,7 @@ add_executable(task2
         src/GameConfig.cpp
         src/Grid.cpp
         src/GameEngine.cpp
-        src/GameOfLife.cpp
+        src/LifeGame.cpp
         src/ConsoleInterface.cpp
         src/LifeFileWriter.cpp
         src/LifeParser.cpp
@@ -34,13 +34,14 @@ add_executable(test_game_of_life
         src/GameConfig.cpp
         src/Grid.cpp
         src/GameEngine.cpp
-        src/GameOfLife.cpp
+        src/LifeGame.cpp
         src/ConsoleInterface.cpp
         src/LifeFileWriter.cpp
         src/LifeParser.cpp
         src/LifeFileReader.cpp
         tst/TestGrid.cpp
         src/Command.cpp
+        tst/TestLifeParser.cpp
 )
 
 target_include_directories(task2 PRIVATE ${CMAKE_SOURCE_DIR}/src)

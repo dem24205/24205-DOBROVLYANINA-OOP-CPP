@@ -6,7 +6,7 @@
 #include "ConsoleInterface.h"
 #include "Command.h"
 
-class GameOfLife {
+class LifeGame {
 private:
     GameEngine engine;
     GameMode mode;
@@ -22,7 +22,7 @@ private:
     friend class DumpCommand;
     friend class ExitCommand;
 public:
-    explicit GameOfLife(const GameConfig& config)
+    explicit LifeGame(const GameConfig& config)
         : engine(config),
         mode(config.getMode()),
         version(config.getVersion()),

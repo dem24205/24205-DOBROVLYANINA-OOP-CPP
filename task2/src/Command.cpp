@@ -1,6 +1,6 @@
 #include "Command.h"
 #include "ConsoleInterface.h"
-#include "GameOfLife.h"
+#include "LifeGame.h"
 #include <iostream>
 #include <windows.h>
 
@@ -17,7 +17,7 @@
     }
 }
 
-GameStatus TickCommand::execute(GameOfLife &game) {
+GameStatus TickCommand::execute(LifeGame &game) {
     if (iteration <= 0) {
         ConsoleInterface::printError("Invalid command. Type 'help' for usage.");
         return GameStatus::Continue;
@@ -40,7 +40,7 @@ GameStatus TickCommand::execute(GameOfLife &game) {
     }
 }
 
-GameStatus AutoCommand::execute(GameOfLife &game) {
+GameStatus AutoCommand::execute(LifeGame &game) {
     if (iteration <= 0) {
         ConsoleInterface::printError("Invalid command. Type 'help' for usage.");
         return GameStatus::Continue;
@@ -56,19 +56,19 @@ GameStatus AutoCommand::execute(GameOfLife &game) {
     return GameStatus::Continue;
 }
 
-GameStatus DumpCommand::execute(GameOfLife &game) {
+GameStatus DumpCommand::execute(LifeGame &game) {
     game.filename = filename;
     game.createLifeFile();
     return GameStatus::Continue;
 }
 
-GameStatus HelpCommand::execute(GameOfLife &game) {
+GameStatus HelpCommand::execute(LifeGame &game) {
     printHelp();
     std::cin.ignore();
     return GameStatus::Continue;
 }
 
-GameStatus ExitCommand::execute(GameOfLife &game) {
+GameStatus ExitCommand::execute(LifeGame &game) {
     return GameStatus::Exit;
 }
 

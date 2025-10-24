@@ -1,5 +1,5 @@
 #include "GameConfig.h"
-#include "GameOfLife.h"
+#include "LifeGame.h"
 #include "LifeParser.h"
 #include <windows.h>
 
@@ -11,7 +11,7 @@ int main(int argc, char* argv[]) {
     }
     LifeParser parser(filename);
     GameConfig config = parser.handleParsing(argc, argv);
-    GameOfLife game(config);
+    LifeGame game(config);
     game.start();
     return 0;
 }
