@@ -5,7 +5,6 @@
 #include <memory>
 #include <unordered_map>
 
-//предполагаемое расширение
 class ConfigCommand {
 public:
     virtual ~ConfigCommand() = default;
@@ -18,6 +17,14 @@ private:
 public:
     std::string getName() const override;
     explicit MuteCommand(const std::string& attr);
+};
+
+class MixCommand : public ConfigCommand {
+private:
+    int start{}, fileIdx{};
+public:
+    std::string getName() const override;
+    explicit MixCommand(const std::string& attr);
 };
 
 class CommandCreator {
@@ -33,12 +40,17 @@ public:
     std::unique_ptr<ConfigCommand> createCommand(const std::string& attr) const override;
 };
 
+class MixCommandCreator : public CommandCreator {
+public:
+    std::string getCommandName() const override;
+    std::unique_ptr<ConfigCommand> createCommand(const std::string& attr) const override;
+};
+
 class CommandFactory {
 private:
     std::unordered_map<std::string, std::unique_ptr<CommandCreator>> creators;
     void registerCreator(std::unique_ptr<CommandCreator> creator);
 public:
-
     CommandFactory();
     std::unique_ptr<ConfigCommand> createCommand(const std::string& name,
     const std::string& attr) const;
@@ -52,6 +64,5 @@ public:
     explicit ConfigHandler(std::ifstream* in) : config(in) {};
     std::unique_ptr<ConfigCommand> getCommand() const;
 };
-
 
 #endif
