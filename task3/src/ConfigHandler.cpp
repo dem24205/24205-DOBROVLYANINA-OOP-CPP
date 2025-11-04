@@ -17,13 +17,11 @@ std::unique_ptr<ConfigCommand> ConfigHandler::getCommand() const {
         cmdName = line.substr(0, firstSpace);
         attributes = line.substr(firstSpace + 1);
     }
-    auto command = CommandFactory::createCommand(cmdName, attributes);
+    auto command = factory.createCommand(cmdName, attributes);
     if (!command) throw ConfigException("Unknown command");
     return command;
 }
 
-//попытка преобразовать атрибуты в поля.
-//не вышло -> исключение.
 MuteCommand::MuteCommand(const std::string &attr) {
     std::istringstream iss(attr);
     if (!(iss >> start >> end)) {
@@ -32,13 +30,37 @@ MuteCommand::MuteCommand(const std::string &attr) {
     if (start < 0 || end < 0) {
         throw ConfigException("Time cannot be negative");
     }
-    //еще что-то проверить
+    if (start > end) {
+        throw ConfigException("Time cannot be greater than start time");
+    }
+    //все?
 }
 
+std::string MuteCommandCreator::getCommandName() const {
+    return "name";
+}
 
-std::unique_ptr<ConfigCommand> CommandFactory::createCommand(const std::string& name, const std::string& attr) {
-    if (name == "mute") {
-        return std::make_unique<MuteCommand>(attr); //норм
+std::unique_ptr<ConfigCommand> MuteCommandCreator::createCommand(const std::string& attr) const {
+    return std::make_unique<MuteCommand>(attr);
+}
+
+std::string MuteCommand::getName() const {
+    return "mute";
+}
+
+void CommandFactory::registerCreator(std::unique_ptr<CommandCreator> creator) {
+    creators[creator->getCommandName()] = std::move(creator);
+}
+
+CommandFactory::CommandFactory() {
+    registerCreator(std::make_unique<MuteCommandCreator>());
+}
+
+std::unique_ptr<ConfigCommand> CommandFactory::createCommand(const std::string& name,
+    const std::string& attr) const {
+    {
+        const auto it = creators.find(name);
+        if (it == creators.end()) return nullptr;
+        return it->second->createCommand(attr);
     }
-    return nullptr;
 }

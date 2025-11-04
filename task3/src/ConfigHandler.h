@@ -3,9 +3,9 @@
 
 #include <string>
 #include <memory>
+#include <unordered_map>
 
-
-//базовый класс для команд конфига (предполагаемое расширение)
+//предполагаемое расширение
 class ConfigCommand {
 public:
     virtual ~ConfigCommand() = default;
@@ -16,18 +16,37 @@ class MuteCommand : public ConfigCommand {
 private:
     int start{}, end{};
 public:
-    std::string getName() const override { return "mute"; };
+    std::string getName() const override;
     explicit MuteCommand(const std::string& attr);
-    //я бы хотела чтобы в этом конструкторе была попытка преобразовать атрибуты в поля структуры.
+};
+
+class CommandCreator {
+public:
+    virtual ~CommandCreator() = default;
+    virtual std::string getCommandName() const = 0;
+    virtual std::unique_ptr<ConfigCommand> createCommand(const std::string& attr) const = 0;
+};
+
+class MuteCommandCreator : public CommandCreator {
+public:
+    std::string getCommandName() const override;
+    std::unique_ptr<ConfigCommand> createCommand(const std::string& attr) const override;
 };
 
 class CommandFactory {
+private:
+    std::unordered_map<std::string, std::unique_ptr<CommandCreator>> creators;
+    void registerCreator(std::unique_ptr<CommandCreator> creator);
 public:
-    static std::unique_ptr<ConfigCommand> createCommand(const std::string& name, const std::string& attr);
+
+    CommandFactory();
+    std::unique_ptr<ConfigCommand> createCommand(const std::string& name,
+    const std::string& attr) const;
 };
 
 class ConfigHandler {
 private:
+    CommandFactory factory;
     std::ifstream* config;
 public:
     explicit ConfigHandler(std::ifstream* in) : config(in) {};
