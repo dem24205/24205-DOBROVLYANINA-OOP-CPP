@@ -16,6 +16,7 @@ add_executable(task3
         src/Converters.h
         src/ConsoleHandler.cpp
         src/ConsoleHandler.h
+        tst/TestConfigHandler.cpp
 )
 
 target_include_directories(task3 PRIVATE ${CMAKE_SOURCE_DIR}/src)
@@ -36,10 +37,13 @@ include(GoogleTest)
 # Тестовое приложение - ДОБАВЬТЕ ConsoleHandler.cpp и другие необходимые файлы
 add_executable(test_sound_processor
         tst/TestConsoleHandler.cpp
+        tst/TestConfigHandler.cpp
         src/ConsoleHandler.cpp
         src/ConsoleHandler.h
         src/SoundProcessorException.cpp
         src/SoundProcessorException.h
+        src/ConfigHandler.h
+        src/ConfigHandler.cpp
 )
 
 target_include_directories(test_sound_processor PRIVATE ${CMAKE_SOURCE_DIR}/src)

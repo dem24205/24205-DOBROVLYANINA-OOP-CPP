@@ -17,6 +17,8 @@ private:
 public:
     std::string getName() const override;
     explicit MuteCommand(const std::string& attr);
+    int getStart() const { return start; };
+    int getEnd() const { return end; };
 };
 
 class MixCommand : public ConfigCommand {
@@ -25,6 +27,8 @@ private:
 public:
     std::string getName() const override;
     explicit MixCommand(const std::string& attr);
+    int getStart() const { return start; };
+    int getFileIdx() const { return fileIdx; };
 };
 
 class CommandCreator {
