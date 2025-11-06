@@ -11,6 +11,11 @@ public:
     virtual std::string getName() const = 0;
 };
 
+class CommentCommand : public ConfigCommand {
+public:
+  std::string getName() const override;
+};
+
 class MuteCommand : public ConfigCommand {
 private:
     int start{}, end{};
@@ -36,6 +41,12 @@ public:
     virtual ~CommandCreator() = default;
     virtual std::string getCommandName() const = 0;
     virtual std::unique_ptr<ConfigCommand> createCommand(const std::string& attr) const = 0;
+};
+
+class CommentCreator : public CommandCreator {
+public:
+    std::string getCommandName() const override;
+    std::unique_ptr<ConfigCommand> createCommand(const std::string& attr) const override;
 };
 
 class MuteCommandCreator : public CommandCreator {

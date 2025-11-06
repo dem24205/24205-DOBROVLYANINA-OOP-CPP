@@ -75,21 +75,21 @@ TEST(CommandCreatorsTest, MixCommandCreator) {
     const MixCommandCreator creator;
     EXPECT_EQ(creator.getCommandName(), "mix");
 
-    const auto command = creator.createCommand("$3 200");
+    const auto command = creator.createCommand("$3 20");
     ASSERT_NE(command, nullptr);
     EXPECT_EQ(command->getName(), "mix");
 
     auto* mixCmd = dynamic_cast<MixCommand*>(command.get());
     ASSERT_NE(mixCmd, nullptr);
-    EXPECT_EQ(mixCmd->getStart(), 200);
+    EXPECT_EQ(mixCmd->getStart(), 20);
     EXPECT_EQ(mixCmd->getFileIdx(), 3);
 }
 
 TEST(ConfigHandlerTest, ReadCommandsFromStream) {
     ofstream tempFile("test_config.txt");
-    tempFile << "mute 0 100\n";
+    tempFile << "mute 0 10\n";
     tempFile << "mix $1 20\n";
-    tempFile << "mute 20 30\n";
+    tempFile << "mute\n";
     tempFile.close();
 
     ifstream configStream("test_config.txt");
@@ -101,10 +101,6 @@ TEST(ConfigHandlerTest, ReadCommandsFromStream) {
     auto cmd2 = handler.getCommand();
     ASSERT_NE(cmd2, nullptr);
     EXPECT_EQ(cmd2->getName(), "mix");
-
-    auto cmd3 = handler.getCommand();
-    ASSERT_NE(cmd3, nullptr);
-    EXPECT_EQ(cmd3->getName(), "mute");
 
     EXPECT_THROW(handler.getCommand(), ConfigException);
     configStream.close();
@@ -120,4 +116,29 @@ TEST(ConfigHandlerTest, InvalidCommandInStream) {
     EXPECT_THROW(handler.getCommand(), ConfigException);
     configStream.close();
     remove("invalid_test.txt");
+}
+
+TEST(ConfigHandlerTest, CommentsMixedWithInvalidArgs) {
+    std::ofstream tempFile("comment_test.txt");
+    tempFile << "# this is a comment\n";
+    tempFile << "\n";  // Пустая строка
+    tempFile << "mute 12\n";
+    tempFile << "mix\n";
+    tempFile.close();
+
+    std::ifstream configStream("comment_test.txt");
+    ConfigHandler handler(&configStream);
+
+    auto cmd1 = handler.getCommand();
+    ASSERT_NE(cmd1, nullptr);
+    EXPECT_EQ(cmd1->getName(), "comment");
+
+    auto cmd2 = handler.getCommand();
+    ASSERT_NE(cmd2, nullptr);
+    EXPECT_EQ(cmd2->getName(), "comment");
+    //last two invalid cmds
+    EXPECT_THROW(handler.getCommand(), ConfigException);
+    EXPECT_THROW(handler.getCommand(), ConfigException);
+    configStream.close();
+    remove("comment_test.txt");
 }

@@ -7,18 +7,20 @@
 std::unique_ptr<ConfigCommand> ConfigHandler::getCommand() const {
     std::string line;
     std::getline(*config, line);
-    const size_t firstSpace = line.find(' ');
     std::string cmdName, attributes;
-    //TODO: разобраться с комментариями
-    if (firstSpace == std::string::npos) {
-        cmdName = line;
+    const size_t firstSpace = line.find(' ');
+    if (line[0] == '#' || line.empty()) {
+        cmdName = "comment";
         attributes = "";
-        //TODO: некорректные параметры команды -> исключение
     }
     else {
+        if (firstSpace == std::string::npos) {
+            throw ConfigException("Invalid command line");
+        }
         cmdName = line.substr(0, firstSpace);
         attributes = line.substr(firstSpace + 1);
     }
+
     auto command = factory.createCommand(cmdName, attributes);
     if (!command) throw ConfigException("Unknown command");
     return command;
@@ -43,11 +45,23 @@ MixCommand::MixCommand(const std::string &attr) {
     }
 }
 
+std::string CommentCommand::getName() const {
+    return "comment";
+}
+
 std::string MixCommand::getName() const {
     return "mix";
 }
 
-std::unique_ptr<ConfigCommand> MixCommandCreator::createCommand(const std::string &attr) const {
+std::string CommentCreator::getCommandName() const {
+    return "comment";
+}
+
+std::unique_ptr<ConfigCommand> CommentCreator::createCommand(const std::string& attr) const {
+    return std::make_unique<CommentCommand>();
+}
+
+std::unique_ptr<ConfigCommand> MixCommandCreator::createCommand(const std::string& attr) const {
     return std::make_unique<MixCommand>(attr);
 }
 
@@ -88,6 +102,7 @@ void CommandFactory::registerCreator(std::unique_ptr<CommandCreator> creator) {
 CommandFactory::CommandFactory() {
     registerCreator(std::make_unique<MuteCommandCreator>());
     registerCreator(std::make_unique<MixCommandCreator>());
+    registerCreator(std::make_unique<CommentCreator>());
 }
 
 std::unique_ptr<ConfigCommand> CommandFactory::createCommand(const std::string& name,
