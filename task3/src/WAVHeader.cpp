@@ -32,13 +32,13 @@ void WAVHeaderParser::parse(const std::string& filename) {
         throw FormatException("Incorrect format");
     }
     file.read(buffer, 4);
-    subChunk1Id = buffer;
+    subchunk1Id = buffer;
     if (strcmp(buffer, "fmt ") != 0) {
         throw FormatException("Corrupted file");
     }
     file.read(buffer, 4);
-    subChunk1Size = convertBinStrToInt(buffer, 4);
-    if (subChunk1Size != 16) {
+    subchunk1Size = convertBinStrToInt(buffer, 4);
+    if (subchunk1Size != 16) {
         throw FormatException("Only files in PCM format are supported");
     }
     file.read(buffer, 2);
@@ -66,37 +66,64 @@ void WAVHeaderParser::parse(const std::string& filename) {
         throw FormatException("Only 16 bit per samples are supported");
     }
     file.read(buffer, 4);
-    subChunk2Id = buffer;
+    subchunk2Id = buffer;
     if (!strcmp(buffer, "LIST")) {
         file.read(buffer, 4);
-        subChunk2Size = convertBinStrToInt(buffer, 4);
-        dataStartPos += subChunk2Size; // если что-то есть, то сдвигаемся
-        file.seekg(subChunk2Size, std::ios::cur);
+        subchunk2Size = convertBinStrToInt(buffer, 4);
+        headerSize += subchunk2Size; // attention!
+        file.seekg(subchunk2Size, std::ios::cur);
         file.read(buffer, 4);
     }
     if (strcmp(buffer, "data") != 0) {
         throw FormatException("Corrupted file");
     }
-    subChunk2Id = buffer;
+    subchunk2Id = buffer;
     file.read(buffer, 4);
-    subChunk2Size = convertBinStrToInt(buffer, 4);
-    dataStartPos = static_cast<int>(file.tellg()); //теперь указывает на первый сэмпл, но зачем в той проверке это делать?
+    subchunk2Size = convertBinStrToInt(buffer, 4);
+    headerSize = static_cast<int>(file.tellg());
     file.close();
 }
 
-void WAVHeaderWriter::writeBinary(std::ofstream& out, const int value, const int bytes) {
+int WAVHeader::getHeaderSize() const {
+    return headerSize;
+}
+
+int WAVHeader::getSampleRate() const {
+    return sampleRate;
+}
+
+int WAVHeader::getSubchunk2Size() const {
+    return subchunk2Size;
+}
+
+void WAVHeaderWriter::copyFrom(const WAVHeaderParser& parser) {
+    chunkId = parser.chunkId;
+    chunkSize = parser.chunkSize;
+    format = parser.format;
+    subchunk1Id = parser.subchunk1Id;
+    subchunk1Size = parser.subchunk1Size;
+    audioFormat = parser.audioFormat;
+    numChannels = parser.numChannels;
+    sampleRate = parser.sampleRate;
+    byteRate = parser.byteRate;
+    blockAlign = parser.blockAlign;
+    bitsPerSample = parser.bitsPerSample;
+    subchunk2Id = parser.subchunk2Id;
+    subchunk2Size = parser.subchunk2Size;
+}
+
+void WAVHeaderWriter::writeBinary(std::fstream& out, const int value, const int bytes) {
     out.write(reinterpret_cast<const char*>(&value), bytes);
 }
 
-
-void WAVHeaderWriter::write(std::ofstream& out) const {
+void WAVHeaderWriter::write(std::fstream& out) const {
     //RIFF Chunk Descriptor
     out << chunkId;
     out << chunkSize;
     out << format;
     //"fmt" subchunk
-    out << subChunk1Id;
-    writeBinary(out, subChunk1Size, 4);
+    out << subchunk1Id;
+    writeBinary(out, subchunk1Size, 4);
     writeBinary(out, audioFormat, 2);
     writeBinary(out, numChannels, 2);
     writeBinary(out, sampleRate, 4);
@@ -104,6 +131,6 @@ void WAVHeaderWriter::write(std::ofstream& out) const {
     writeBinary(out, blockAlign, 2);
     writeBinary(out, bitsPerSample, 2);
     //"data" subchunk
-    out << subChunk2Id;
-    writeBinary(out, subChunk2Size, 4);
+    out << subchunk2Id;
+    writeBinary(out, subchunk2Size, 4);
 }

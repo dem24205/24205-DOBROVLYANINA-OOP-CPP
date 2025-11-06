@@ -17,6 +17,8 @@ add_executable(task3
         src/ConsoleHandler.cpp
         src/ConsoleHandler.h
         tst/TestConfigHandler.cpp
+        src/FileHandler.cpp
+        src/FileHandler.h
 )
 
 target_include_directories(task3 PRIVATE ${CMAKE_SOURCE_DIR}/src)
