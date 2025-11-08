@@ -1,6 +1,7 @@
 #include "FileHandler.h"
 #include "SoundProcessorException.h"
 #include "WAVHeader.h"
+#include <iostream>
 
 FileHandler::FileHandler(const std::string &inputFilename, const std::string &outputFilename) {
     WAVHeaderParser inputParser;
@@ -30,6 +31,7 @@ FileHandler::FileHandler(const std::string &inputFilename, const std::string &ou
         headerWriter.write(output);
     }
     output.seekg(inputHeaderEnd, std::ios::beg);
+    output.seekp(inputHeaderEnd, std::ios::beg);
     inputSubchunk2Size = inputParser.getSubchunk2Size();
     if (isOutputOpen) {
         outputSubchunk2Size = outputParser.getSubchunk2Size();
@@ -52,6 +54,7 @@ void FileHandler::seekToDataStart() {
     input.seekg(inputHeaderEnd, std::ios::beg);
     if (outputHeaderEnd > 0) {
         output.seekg(outputHeaderEnd, std::ios::beg);
+        output.seekp(outputHeaderEnd, std::ios::beg);
     }
 }
 

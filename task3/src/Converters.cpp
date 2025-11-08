@@ -1,4 +1,5 @@
 #include "Converters.h"
+#include "ConverterControllers.h"
 
 char* Muter::convert(char* outStream, char* inStream) {
     for (int i = 0; i < SECOND; ++i) {
@@ -20,8 +21,11 @@ std::string Muter::getAttributes() const {
 std::unique_ptr<Converter> MuterCreator::createConverter() const {
     return std::make_unique<Muter>();
 }
+std::string MuterCreator::getName() const {
+    return "muter";
+}
 
-char *Mixer::convert(char *outStream, char *inStream) {
+char* Mixer::convert(char *outStream, char *inStream) {
     for (int i = 0; i < SECOND; ++i) {
         outStream[i] = static_cast<char>(((outStream[i] + inStream[i]) / 2));
     }
@@ -42,4 +46,36 @@ std::string Mixer::getAttributes() const {
 
 std::unique_ptr<Converter> MixerCreator::createConverter() const {
     return std::make_unique<Mixer>();
+}
+
+std::string MixerCreator::getName() const {
+    return "mixer";
+}
+
+void ConverterFactory::registerCreator(
+    std::unique_ptr<ConverterCreator> creator) {
+    creators[creator->getName()] = std::move(creator);
+}
+
+ConverterFactory::ConverterFactory() {
+    registerCreator(std::make_unique<MixerCreator>());
+    registerCreator(std::make_unique<MuterCreator>());
+}
+
+std::vector<std::string> ConverterFactory::getAvailableConverterNames() const {
+    std::vector<std::string> names;
+    names.reserve(creators.size());
+    for (const auto& pair : creators) {
+        names.push_back(pair.first);
+    }
+    return names;
+}
+
+std::unique_ptr<Converter> ConverterFactory::createConverter(
+    const std::string& name) const {
+    auto it = creators.find(name);
+    if (it != creators.end()) {
+        return it->second->createConverter();
+    }
+    return nullptr;
 }

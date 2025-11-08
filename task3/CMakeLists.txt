@@ -3,22 +3,16 @@ project(task3)
 
 set(CMAKE_CXX_STANDARD 17)
 
-# Основное приложение
 add_executable(task3
         src/main.cpp
         src/WAVHeader.cpp
-        src/WAVHeader.h
         src/SoundProcessorException.cpp
-        src/SoundProcessorException.h
         src/ConfigHandler.cpp
-        src/ConfigHandler.h
         src/Converters.cpp
-        src/Converters.h
         src/ConsoleHandler.cpp
-        src/ConsoleHandler.h
-        tst/TestConfigHandler.cpp
         src/FileHandler.cpp
-        src/FileHandler.h
+        src/ConverterControllers.cpp
+        src/SoundProcessor.cpp
 )
 
 target_include_directories(task3 PRIVATE ${CMAKE_SOURCE_DIR}/src)
@@ -36,16 +30,21 @@ FetchContent_MakeAvailable(googletest)
 enable_testing()
 include(GoogleTest)
 
-# Тестовое приложение - ДОБАВЬТЕ ConsoleHandler.cpp и другие необходимые файлы
 add_executable(test_sound_processor
         tst/TestConsoleHandler.cpp
         tst/TestConfigHandler.cpp
+        tst/TestSoundProcessor.cpp
         src/ConsoleHandler.cpp
         src/ConsoleHandler.h
         src/SoundProcessorException.cpp
         src/SoundProcessorException.h
         src/ConfigHandler.h
         src/ConfigHandler.cpp
+        src/ConverterControllers.cpp
+        src/FileHandler.cpp
+        src/WAVHeader.cpp
+        src/Converters.cpp
+        src/SoundProcessor.cpp
 )
 
 target_include_directories(test_sound_processor PRIVATE ${CMAKE_SOURCE_DIR}/src)

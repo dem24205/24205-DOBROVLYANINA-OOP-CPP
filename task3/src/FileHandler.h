@@ -17,6 +17,15 @@ private:
     int sampleRate;
     bool isSameFile;
 public:
+   /* std::streampos getOutputReadPosition() {
+        return output.tellg();
+    }
+    std::streampos getOutputWritePosition() {
+        return output.tellp();
+    }
+    std::streampos getInputPosition() {
+        return input.tellg();
+    }*/
     FileHandler(const std::string& inputFilename, const std::string& outputFilename);
     ~FileHandler();
     bool isInPlace() const;

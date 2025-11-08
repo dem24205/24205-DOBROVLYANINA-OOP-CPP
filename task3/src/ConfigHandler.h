@@ -1,39 +1,49 @@
 #ifndef CONFIGHANDLER_H
 #define CONFIGHANDLER_H
 
-#include <string>
 #include <memory>
+#include <string>
 #include <unordered_map>
 
 class ConfigCommand {
+protected:
+    int start{};
+    int end{};
+    int inputFileIdx = 1;
 public:
     virtual ~ConfigCommand() = default;
     virtual std::string getName() const = 0;
+    virtual int getStart() const  = 0;
+    virtual int getEnd() const  = 0;
+    virtual int getInputFileIdx() const = 0;
 };
+
+//TODO: add one more command
 
 class CommentCommand : public ConfigCommand {
 public:
-  std::string getName() const override;
+    std::string getName() const override;
+    int getStart() const override;
+    int getEnd() const override;
+    int getInputFileIdx() const override;
 };
 
 class MuteCommand : public ConfigCommand {
-private:
-    int start{}, end{};
 public:
-    std::string getName() const override;
     explicit MuteCommand(const std::string& attr);
-    int getStart() const { return start; };
-    int getEnd() const { return end; };
+    std::string getName() const override;
+    int getStart() const override;
+    int getEnd() const override;
+    int getInputFileIdx() const override;
 };
 
 class MixCommand : public ConfigCommand {
-private:
-    int start{}, fileIdx{};
 public:
-    std::string getName() const override;
     explicit MixCommand(const std::string& attr);
-    int getStart() const { return start; };
-    int getFileIdx() const { return fileIdx; };
+    std::string getName() const override;
+    int getStart() const override;
+    int getEnd() const override;
+    int getInputFileIdx() const override;
 };
 
 class CommandCreator {

@@ -7,7 +7,7 @@
 int WAVHeader::convertBinStrToInt(const char* string, const int bytes) noexcept {
     int result = 0;
     for (int i = 0; i < bytes; ++i) {
-        result |= static_cast<unsigned char>(string[bytes - i - 1]) << (i * BYTE_SIZE);
+        result |= static_cast<unsigned char>(string[i]) << (i * BYTE_SIZE);  // ← УБРАЛ bytes - i - 1!
     }
     return result;
 }
@@ -53,6 +53,7 @@ void WAVHeaderParser::parse(const std::string& filename) {
     }
     file.read(buffer, 4);
     sampleRate = convertBinStrToInt(buffer, 4);
+    //printf("%d\n", sampleRate);
     if (sampleRate != 44100) {
         throw FormatException("Only files with 44100 hz sample rate are supported");
     }

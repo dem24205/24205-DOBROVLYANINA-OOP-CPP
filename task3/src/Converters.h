@@ -3,6 +3,8 @@
 
 #include <memory>
 #include <string>
+#include <unordered_map>
+#include <vector>
 
 class Converter {
 protected:
@@ -17,7 +19,6 @@ public:
 };
 
 class Muter : public Converter {
-    //по дефолту inStream = nullptr
     char* convert (char* outStream, char* inStream) override;
     std::string getName() const override;
     std::string getDescription() const override;
@@ -35,17 +36,31 @@ class Mixer : public Converter {
 class ConverterCreator {
 public:
     virtual ~ConverterCreator() = default;
+    virtual std::string getName() const = 0;
     virtual std::unique_ptr<Converter> createConverter() const = 0;
 };
 
 class MuterCreator : public ConverterCreator {
 public:
+    std::string getName() const override;
     std::unique_ptr<Converter> createConverter() const override;
 };
 
 class MixerCreator : public ConverterCreator {
 public :
     std::unique_ptr<Converter> createConverter() const override;
+    std::string getName() const override;
+};
+
+class ConverterFactory {
+private:
+    void registerCreator(std::unique_ptr<ConverterCreator> creator);
+protected:
+    std::unordered_map<std::string, std::unique_ptr<ConverterCreator>> creators;
+public:
+    std::vector<std::string> getAvailableConverterNames() const;
+    std::unique_ptr<Converter> createConverter(const std::string& name) const;
+    ConverterFactory();
 };
 
 #endif

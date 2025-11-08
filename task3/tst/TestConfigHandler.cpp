@@ -14,10 +14,10 @@ TEST(ConfigCommandTest, MuteCommandCreationAndGetters) {
 }
 
 TEST(ConfigCommandTest, MixCommandCreationAndGetters) {
-    const MixCommand command("$1 40");
+    MixCommand command("$1 40");
     EXPECT_EQ(command.getName(), "mix");
     EXPECT_EQ(command.getStart(), 40);
-    EXPECT_EQ(command.getFileIdx(), 1);
+    EXPECT_EQ(command.getInputFileIdx(), 1);
 }
 
 TEST(CommandFactoryTest, FactoryCreation) {
@@ -54,7 +54,7 @@ TEST(CommandFactoryTest, ConcreteCommandTypes) {
     EXPECT_EQ(muteConcrete->getStart(), 10);
     EXPECT_EQ(muteConcrete->getEnd(), 20);
     EXPECT_EQ(mixConcrete->getStart(), 0);
-    EXPECT_EQ(mixConcrete->getFileIdx(), 2);
+    EXPECT_EQ(mixConcrete->getInputFileIdx(), 2);
 }
 
 TEST(CommandCreatorsTest, MuteCommandCreator) {
@@ -82,7 +82,7 @@ TEST(CommandCreatorsTest, MixCommandCreator) {
     auto* mixCmd = dynamic_cast<MixCommand*>(command.get());
     ASSERT_NE(mixCmd, nullptr);
     EXPECT_EQ(mixCmd->getStart(), 20);
-    EXPECT_EQ(mixCmd->getFileIdx(), 3);
+    EXPECT_EQ(mixCmd->getInputFileIdx(), 3);
 }
 
 TEST(ConfigHandlerTest, ReadCommandsFromStream) {

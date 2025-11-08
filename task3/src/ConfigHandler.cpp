@@ -1,8 +1,8 @@
 #include "ConfigHandler.h"
 #include "SoundProcessorException.h"
+#include <fstream>
 #include <memory>
 #include <sstream>
-#include <fstream>
 
 std::unique_ptr<ConfigCommand> ConfigHandler::getCommand() const {
     std::string line;
@@ -20,7 +20,6 @@ std::unique_ptr<ConfigCommand> ConfigHandler::getCommand() const {
         cmdName = line.substr(0, firstSpace);
         attributes = line.substr(firstSpace + 1);
     }
-
     auto command = factory.createCommand(cmdName, attributes);
     if (!command) throw ConfigException("Unknown command");
     return command;
@@ -33,11 +32,11 @@ MixCommand::MixCommand(const std::string &attr) {
     }
     start = 0;
     std::istringstream iss(attr.substr(refPos + 1));
-    if (!(iss >> fileIdx)) {
+    if (!(iss >> inputFileIdx)) {
         throw ConfigException("mix: invalid parameters");
     }
     iss >> start;
-    if (fileIdx < 1) {
+    if (inputFileIdx < 1) {
         throw ConfigException("mix: invalid parameters");
     }
     if (start < 0) {
@@ -45,30 +44,21 @@ MixCommand::MixCommand(const std::string &attr) {
     }
 }
 
-std::string CommentCommand::getName() const {
-    return "comment";
+int MixCommand::getStart() const {
+    return start;
+}
+
+int MixCommand::getEnd() const {
+    return end;
+}
+
+int MixCommand::getInputFileIdx() const {
+    return inputFileIdx;
 }
 
 std::string MixCommand::getName() const {
     return "mix";
 }
-
-std::string CommentCreator::getCommandName() const {
-    return "comment";
-}
-
-std::unique_ptr<ConfigCommand> CommentCreator::createCommand(const std::string& attr) const {
-    return std::make_unique<CommentCommand>();
-}
-
-std::unique_ptr<ConfigCommand> MixCommandCreator::createCommand(const std::string& attr) const {
-    return std::make_unique<MixCommand>(attr);
-}
-
-std::string MixCommandCreator::getCommandName() const {
-    return "mix";
-}
-
 
 MuteCommand::MuteCommand(const std::string &attr) {
     std::istringstream iss(attr);
@@ -83,6 +73,46 @@ MuteCommand::MuteCommand(const std::string &attr) {
     }
 }
 
+int MuteCommand::getEnd() const {
+    return end;
+}
+
+int MuteCommand::getStart() const {
+    return start;
+}
+
+int MuteCommand::getInputFileIdx() const {
+    return inputFileIdx;
+}
+
+std::string MuteCommand::getName() const {
+    return "mute";
+}
+
+int CommentCommand::getStart() const {
+    return start;
+}
+
+int CommentCommand::getEnd() const {
+    return end;
+}
+
+int CommentCommand::getInputFileIdx() const {
+    return inputFileIdx;
+}
+
+std::string CommentCommand::getName() const {
+    return "comment";
+}
+
+std::string MixCommandCreator::getCommandName() const {
+    return "mix";
+}
+
+std::unique_ptr<ConfigCommand> MixCommandCreator::createCommand(const std::string& attr) const {
+    return std::make_unique<MixCommand>(attr);
+}
+
 std::string MuteCommandCreator::getCommandName() const {
     return "mute";
 }
@@ -91,8 +121,12 @@ std::unique_ptr<ConfigCommand> MuteCommandCreator::createCommand(const std::stri
     return std::make_unique<MuteCommand>(attr);
 }
 
-std::string MuteCommand::getName() const {
-    return "mute";
+std::string CommentCreator::getCommandName() const {
+    return "comment";
+}
+
+std::unique_ptr<ConfigCommand> CommentCreator::createCommand(const std::string& attr) const {
+    return std::make_unique<CommentCommand>();
 }
 
 void CommandFactory::registerCreator(std::unique_ptr<CommandCreator> creator) {
@@ -107,9 +141,7 @@ CommandFactory::CommandFactory() {
 
 std::unique_ptr<ConfigCommand> CommandFactory::createCommand(const std::string& name,
     const std::string& attr) const {
-    {
-        const auto it = creators.find(name);
-        if (it == creators.end()) return nullptr;
-        return it->second->createCommand(attr);
-    }
+    const auto it = creators.find(name);
+    if (it == creators.end()) return nullptr;
+    return it->second->createCommand(attr);
 }

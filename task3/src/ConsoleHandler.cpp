@@ -4,36 +4,41 @@
 
 RunMode ConsoleHandler::parseConsoleCommand(const int argc, char* argv[]) {
     if (argc < 2) {
-        throw ConfigException("No console command.");
+        throw ConfigException("No console command");
     }
-    if (!strcmp(argv[1], "-h")) {
+    const std::string mode = argv[1];
+
+    if (mode == "-h") {
         if (argc != 2) {
-            throw ConfigException("Invalid console command.");
+            throw ConfigException("Invalid console command");
         }
         return RunMode::Help;
     }
+
+    if (mode != "-c") {
+        throw ConfigException("Invalid console command");
+    }
+
     if (argc <= 4) {
-        throw ConfigException("Not enough arguments to run.");
+        throw ConfigException("Not enough arguments to run");
     }
-    if (strcmp(argv[1], "-c") != 0) {
-        throw ConfigException("Invalid console command.");
-    }
+
     configFilename = argv[2];
     for (int i = 3; i < argc; ++i) {
         if (!isWavFile(argv[i])) {
-            throw ConfigException("All audio files should be .wav format");
+            throw ConfigException("Only wav files are supported");
         }
-        inputFilenames.emplace_back(argv[i]);
+        filenames.emplace_back(argv[i]);
     }
     return RunMode::Run;
 }
 
-std::string ConsoleHandler::getConfigFilename() const {
+const std::string& ConsoleHandler::getConfigFilename() const {
     return configFilename;
 }
 
-std::vector<std::string> ConsoleHandler::getFilenames() const {
-    return inputFilenames;
+const std::vector<std::string>& ConsoleHandler::getFilenames() const {
+    return filenames;
 }
 
 bool ConsoleHandler::isWavFile(const char* str) {
