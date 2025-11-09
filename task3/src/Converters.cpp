@@ -2,8 +2,8 @@
 #include "ConverterControllers.h"
 
 char* Muter::convert(char* outStream, char* inStream) {
-    for (int i = 0; i < SECOND; ++i) {
-        outStream[i] = 0;
+    for (int i = 0; i < SECOND; i+=2) {;
+        *reinterpret_cast<int16_t*>(outStream + i) = 0;
     }
     return outStream;
 }
@@ -26,8 +26,11 @@ std::string MuterCreator::getName() const {
 }
 
 char* Mixer::convert(char *outStream, char *inStream) {
-    for (int i = 0; i < SECOND; ++i) {
-        outStream[i] = static_cast<char>(((outStream[i] + inStream[i]) / 2));
+    for (int i = 0; i < SECOND; i += 2) {
+        const int16_t outSample = *reinterpret_cast<int16_t*>(outStream + i);
+        const int16_t inSample = *reinterpret_cast<int16_t*>(inStream + i);
+        const int32_t mixed = (static_cast<int32_t>(outSample) + static_cast<int32_t>(inSample)) / 2;
+        *reinterpret_cast<int16_t*>(outStream + i) = static_cast<int16_t>(mixed);
     }
     return outStream;
 }
