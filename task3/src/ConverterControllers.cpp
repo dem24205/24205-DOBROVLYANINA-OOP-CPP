@@ -1,78 +1,64 @@
 #include "ConverterControllers.h"
+#include "Converters.h"
 #include <memory>
 
 ConverterController::ConverterController(
-    const std::string& inputName, const std::string& outputName) {
-    fileHandler = new FileHandler(inputName, outputName);
-    //локальный объект просто создать?
+    const std::string& inputName, const std::string& outputName)
+    : fileHandler(inputName, outputName) {
 }
 
-MixerController::MixerController(
-    const std::string &inputName, const std::string &outputName)
-    : ConverterController(inputName, outputName) {}
-
 void MixerController::convert(const int start, const int end) {
-    const int startInBytes = start * fileHandler->getSampleRate() * 2;
-    fileHandler->seekToDataStart();
-    const int inputDataSize = fileHandler->getInputDataSize();
+    const int startInBytes = start * fileHandler.getSampleRate() * 2;
+    fileHandler.seekToDataStart();
+    const int inputDataSize = fileHandler.getInputDataSize();
     int dataOffset = 0;
-    const int dataLength = fileHandler->getOutputDataSize();
+    const int dataLength = fileHandler.getOutputDataSize();
     const MixerCreator mixerCreator;
     const auto converter = mixerCreator.createConverter();
+
     while (dataOffset <= dataLength) {
         if (dataOffset > inputDataSize) {
             break;
         }
         if (dataOffset >= startInBytes) {
-            char* bufferIn = fileHandler->getStreamFromIn();
-            char* bufferOut = fileHandler->getStreamFromOut();
-            converter->convert(bufferOut, bufferIn);
-            fileHandler->writeStream(bufferOut, -SECOND);
-            delete[] bufferIn;
-            delete[] bufferOut;
-        }
-        else {
-            fileHandler->moveWriterPointer(SECOND);
-            fileHandler->moveReaderPointer(SECOND);
+            auto bufferIn = fileHandler.getStreamFromIn();
+            auto bufferOut = fileHandler.getStreamFromOut();
+            converter->convert(bufferOut.data(), bufferIn.data());
+            fileHandler.writeStream(bufferOut.data(), -SECOND);
+        } else {
+            fileHandler.moveWriterPointer(SECOND);
+            fileHandler.moveReaderPointer(SECOND);
         }
         dataOffset += SECOND;
     }
 }
 
-MuterController::MuterController(
-    const std::string &inputName, const std::string &outputName)
-    : ConverterController(inputName, outputName) {}
-
-void MuterController::convert(int start, int end) {
-    const int startInBytes = start * fileHandler->getSampleRate() * 2;
-    const int endInBytes = end * fileHandler->getSampleRate() * 2;
+void MuterController::convert(const int start, const int end) {
+    const int startInBytes = start * fileHandler.getSampleRate() * 2;
+    const int endInBytes = end * fileHandler.getSampleRate() * 2;
     int dataOffset = 0;
-    const int dataLength = fileHandler->getInputDataSize();
-    fileHandler->seekToDataStart();
-    const bool isInPlace = fileHandler->isInPlace();
+    const int dataLength = fileHandler.getInputDataSize();
+    fileHandler.seekToDataStart();
+    const bool isInPlace = fileHandler.isInPlace();
     const MuterCreator muterCreator;
     const auto muter = muterCreator.createConverter();
     while (dataOffset <= dataLength) {
         bool isBlockToMute = (dataOffset >= startInBytes && dataOffset <= endInBytes);
         if (isBlockToMute) {
-            char* buffer;
+            std::vector<char> buffer;
             if (isInPlace) {
-                buffer = new char[SECOND];
+                buffer = std::vector<char>(SECOND, 0);
+            } else {
+                buffer = fileHandler.getStreamFromIn();
             }
-            else {
-                buffer = fileHandler->getStreamFromIn();
-            }
-            muter->convert(buffer, buffer);
-            fileHandler->writeStream(buffer, 0);
-            delete[] buffer;
-        }
-        else {
+            muter->convert(buffer.data(), buffer.data());
+            fileHandler.writeStream(buffer.data(), 0);
+        } else {
             if (isInPlace) {
-                fileHandler->moveWriterPointer(SECOND);
-            }
-            else {
-                const char* buffer = fileHandler->getStreamFromIn();
-                fileHandler->writeStream(buffer, 0);
+                fileHandler.moveWriterPointer(SECOND);
+            } else {
+                auto buffer = fileHandler.getStreamFromIn();
+                fileHandler.writeStream(buffer.data(), 0);
             }
         }
         dataOffset += SECOND;

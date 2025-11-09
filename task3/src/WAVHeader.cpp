@@ -1,8 +1,8 @@
-#include "WAVHeader.h"
 #include "SoundProcessorException.h"
+#include "WAVHeader.h"
+#include <cstring>
 #include <ios>
 #include <iostream>
-#include <cstring>
 
 int WAVHeader::convertBinStrToInt(const char* string, const int bytes) noexcept {
     int result = 0;

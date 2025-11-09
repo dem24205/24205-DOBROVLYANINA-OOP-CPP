@@ -8,37 +8,33 @@ class SoundProcessorException : public std::exception {
 private:
     std::string message;
 public:
-    explicit SoundProcessorException(const std::string& message) : message(message){};
-    const char* what() const noexcept override{
-        return message.c_str();
-    }
+    explicit SoundProcessorException(const std::string& message) : message(message) {};
+    const char* what() const noexcept override;
     virtual int getErrorCode() const = 0;
 };
 
 class FileException : public SoundProcessorException {
 private:
-    int errorCode = 1; //когда исключение вспылывет наверх необходимо
-                       //чтобы программа завершилась с определенным собственным кодом
+    int errorCode = 1;
 public:
-    explicit FileException(const std::string& message) : SoundProcessorException(message){};
-    int getErrorCode() const override { return errorCode; };
+    explicit FileException(const std::string& message);
+    int getErrorCode() const override;
 };
 
 class FormatException : public SoundProcessorException {
 private:
     int errorCode = 2;
 public:
-    explicit FormatException(const std::string& message) : SoundProcessorException(message){};
-    int getErrorCode() const override { return errorCode; }
+    explicit FormatException(const std::string& message);
+    int getErrorCode() const override;
 };
 
 class ConfigException : public SoundProcessorException {
 private:
     int errorCode = 3;
 public:
-    explicit ConfigException(const std::string& message) : SoundProcessorException(message){};
-    int getErrorCode() const override { return errorCode; }
+    explicit ConfigException(const std::string& message);
+    int getErrorCode() const override;
 };
 
-// TODO: добавить исключение для конфига с кодированием
 #endif

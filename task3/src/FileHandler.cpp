@@ -2,6 +2,7 @@
 #include "SoundProcessorException.h"
 #include "WAVHeader.h"
 #include <iostream>
+#include <vector>
 
 FileHandler::FileHandler(const std::string &inputFilename, const std::string &outputFilename) {
     WAVHeaderParser inputParser;
@@ -15,7 +16,7 @@ FileHandler::FileHandler(const std::string &inputFilename, const std::string &ou
         }
     }
     output.open(outputFilename, std::ios::binary | std::ios::in | std::ios::out);
-    //move in helping func
+    //TODO: move in help func?
     const bool isOutputOpen = output.is_open() && output.peek() != -1;
     WAVHeaderParser outputParser;
     if (isOutputOpen) {
@@ -66,12 +67,8 @@ int FileHandler::getInputDataSize() const {
     return inputSubchunk2Size;
 }
 
-int FileHandler::getOutputDataOffset() const {
-    return outputHeaderEnd;
-}
-
-int FileHandler::getInputDataOffset() const {
-    return inputHeaderEnd;
+int FileHandler::getSampleRate() const {
+    return sampleRate;
 }
 
 void FileHandler::moveWriterPointer(const int offset) {
@@ -82,10 +79,6 @@ void FileHandler::moveReaderPointer(const int offset) {
    input.seekg(offset, std::ios::cur);
 }
 
-int FileHandler::getSampleRate() const {
-    return sampleRate;
-}
-
 void FileWriter::write(std::ostream &output, const char *buffer, const int size) {
     output.write(buffer, size);
 }
@@ -94,15 +87,16 @@ void FileReader::read(std::istream& input, char* buffer, const int size) {
     input.read(buffer, size);
 }
 
-char* FileHandler::getStreamFromIn() {
-    char* buffer = new char[SECOND];
-    FileReader::read(input, buffer, SECOND);
+
+std::vector<char> FileHandler::getStreamFromIn() {
+    std::vector<char> buffer(SECOND);
+    FileReader::read(input, buffer.data(), SECOND);
     return buffer;
 }
 
-char* FileHandler::getStreamFromOut() {
-    char* buffer = new char[SECOND];
-    FileReader::read(output, buffer, SECOND);
+std::vector<char> FileHandler::getStreamFromOut() {
+    std::vector<char> buffer(SECOND);
+    FileReader::read(output, buffer.data(), SECOND);
     return buffer;
 }
 

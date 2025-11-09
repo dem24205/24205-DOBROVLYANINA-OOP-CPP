@@ -1,5 +1,6 @@
 #include "ConfigHandler.h"
 #include "ConverterControllers.h"
+#include "Converters.h"
 #include "SoundProcessor.h"
 #include "SoundProcessorException.h"
 #include <iostream>
@@ -26,6 +27,7 @@ void SoundProcessor::run() {
         if (isNotToConvert(command)) continue;
         ControllerFactory factory;
         std::unique_ptr<ConverterController> converterController;
+        //TODO: check filenames[command->getInputiIdx()]
         if (isInPlace(command)) {
             converterController = factory.createController(command->getName(), prevFilename, outputFilename);
         }

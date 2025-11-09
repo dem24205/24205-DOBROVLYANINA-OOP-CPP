@@ -2,14 +2,19 @@
 #define FILEHANDLER_H
 
 #include <fstream>
+#include <string>
+#include <vector>
 
 class FileHandler {
 private:
     const int SECOND = 44100 * 2;
+
     std::string inputFilename;
     std::string outputFilename;
+
     std::ifstream input;
     std::fstream output;
+
     int inputHeaderEnd;
     int outputHeaderEnd{};
     int inputSubchunk2Size;
@@ -17,28 +22,22 @@ private:
     int sampleRate;
     bool isSameFile;
 public:
-   /* std::streampos getOutputReadPosition() {
-        return output.tellg();
-    }
-    std::streampos getOutputWritePosition() {
-        return output.tellp();
-    }
-    std::streampos getInputPosition() {
-        return input.tellg();
-    }*/
     FileHandler(const std::string& inputFilename, const std::string& outputFilename);
     ~FileHandler();
+
     bool isInPlace() const;
-    void seekToDataStart();
+
     int getOutputDataSize() const;
     int getInputDataSize() const;
-    int getOutputDataOffset() const;
-    int getInputDataOffset() const;
+    int getSampleRate() const;
+    void seekToDataStart();
+
     void moveWriterPointer(int offset);
     void moveReaderPointer(int offset);
-    char* getStreamFromIn();
-    char* getStreamFromOut();
-    int getSampleRate() const;
+
+    std::vector<char> getStreamFromIn();
+    std::vector<char> getStreamFromOut();
+
     void writeStream(const char* buffer, int offset);
 };
 

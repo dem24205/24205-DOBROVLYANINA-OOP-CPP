@@ -1,8 +1,8 @@
 #ifndef WAVHEADER_H
 #define WAVHEADER_H
 
-#include <string>
 #include <fstream>
+#include <string>
 
 class WAVHeader {
 protected:

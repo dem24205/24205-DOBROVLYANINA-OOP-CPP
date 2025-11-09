@@ -3,13 +3,14 @@
 
 #include <string>
 #include <unordered_map>
+#include <memory>
 #include "FileHandler.h"
-#include "Converters.h"
 
 class ConverterController {
 protected:
     const int SECOND = 44100 * 2;
-    FileHandler* fileHandler;
+    FileHandler fileHandler;
+
 public:
     ConverterController(const std::string &inputName, const std::string& outputName);
     virtual ~ConverterController() = default;
@@ -18,13 +19,13 @@ public:
 
 class MuterController : public ConverterController {
 public:
-    MuterController(const std::string &inputName, const std::string& outputName);
+    using ConverterController::ConverterController;
     void convert(int start, int end) override;
 };
 
 class MixerController : public ConverterController {
 public:
-    MixerController(const std::string &inputName, const std::string& outputName);
+    using ConverterController::ConverterController;
     void convert(int start, int end) override;
 };
 
