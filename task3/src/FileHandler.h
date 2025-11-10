@@ -30,7 +30,9 @@ public:
     int getOutputDataSize() const;
     int getInputDataSize() const;
     int getSampleRate() const;
+
     void seekToDataStart();
+    void seekToPointer(int offset);
 
     void moveWriterPointer(int offset);
     void moveReaderPointer(int offset);
@@ -38,7 +40,7 @@ public:
     std::vector<char> getStreamFromIn();
     std::vector<char> getStreamFromOut();
 
-    void writeStream(const char* buffer, int offset);
+    void writeStream(const char* buffer, int offset, int blocks);
 };
 
 class FileReader {

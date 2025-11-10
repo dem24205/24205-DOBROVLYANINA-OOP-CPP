@@ -9,7 +9,7 @@ add_executable(task3
         src/SoundProcessorException.cpp
         src/ConfigHandler.cpp
         src/Converters.cpp
-        src/ConsoleHandler.cpp
+        src/ConsoleParser.cpp
         src/FileHandler.cpp
         src/ConverterControllers.cpp
         src/SoundProcessor.cpp
@@ -34,8 +34,8 @@ add_executable(test_sound_processor
         tst/TestConsoleHandler.cpp
         tst/TestConfigHandler.cpp
         tst/TestSoundProcessor.cpp
-        src/ConsoleHandler.cpp
-        src/ConsoleHandler.h
+        src/ConsoleParser.cpp
+        src/ConsoleParser.h
         src/SoundProcessorException.cpp
         src/SoundProcessorException.h
         src/ConfigHandler.h
@@ -45,6 +45,7 @@ add_executable(test_sound_processor
         src/WAVHeader.cpp
         src/Converters.cpp
         src/SoundProcessor.cpp
+        tst/TestExceptions.cpp
 )
 
 target_include_directories(test_sound_processor PRIVATE ${CMAKE_SOURCE_DIR}/src)

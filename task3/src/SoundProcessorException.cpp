@@ -24,3 +24,10 @@ ConfigException::ConfigException(const std::string& message)
 int ConfigException::getErrorCode() const {
     return errorCode;
 }
+
+ConsoleException::ConsoleException(const std::string &message)
+    : SoundProcessorException(message) {}
+
+int ConsoleException::getErrorCode() const {
+    return errorCode;
+}

@@ -1,12 +1,13 @@
 #include "ConverterControllers.h"
 #include "Converters.h"
+#include <cstring>
 #include <memory>
 
 ConverterController::ConverterController(
     const std::string& inputName, const std::string& outputName)
-    : fileHandler(inputName, outputName) {
-}
+    : fileHandler(inputName, outputName) {}
 
+//controllers
 void MixerController::convert(const int start, const int end) {
     const int startInBytes = start * fileHandler.getSampleRate() * 2;
     fileHandler.seekToDataStart();
@@ -14,8 +15,7 @@ void MixerController::convert(const int start, const int end) {
     int dataOffset = 0;
     const int dataLength = fileHandler.getOutputDataSize();
     const MixerCreator mixerCreator;
-    const auto converter = mixerCreator.createConverter();
-
+    const auto mixer = mixerCreator.createConverter();
     while (dataOffset <= dataLength) {
         if (dataOffset > inputDataSize) {
             break;
@@ -23,8 +23,8 @@ void MixerController::convert(const int start, const int end) {
         if (dataOffset >= startInBytes) {
             auto bufferIn = fileHandler.getStreamFromIn();
             auto bufferOut = fileHandler.getStreamFromOut();
-            converter->convert(bufferOut.data(), bufferIn.data());
-            fileHandler.writeStream(bufferOut.data(), -SECOND);
+            mixer->convert(bufferOut.data(), bufferIn.data(), 1);
+            fileHandler.writeStream(bufferOut.data(), -SECOND, 1);
         } else {
             fileHandler.moveWriterPointer(SECOND);
             fileHandler.moveReaderPointer(SECOND);
@@ -51,18 +51,36 @@ void MuterController::convert(const int start, const int end) {
             } else {
                 buffer = fileHandler.getStreamFromIn();
             }
-            muter->convert(buffer.data(), buffer.data());
-            fileHandler.writeStream(buffer.data(), 0);
+            muter->convert(buffer.data(), buffer.data(), 1);
+            fileHandler.writeStream(buffer.data(), 0, 1);
         } else {
             if (isInPlace) {
                 fileHandler.moveWriterPointer(SECOND);
             } else {
                 auto buffer = fileHandler.getStreamFromIn();
-                fileHandler.writeStream(buffer.data(), 0);
+                fileHandler.writeStream(buffer.data(), 0, 1);
             }
         }
         dataOffset += SECOND;
     }
+}
+
+void ReverserController::convert(const int start, const int end) {
+    const int startInBytes = start * fileHandler.getSampleRate() * 2;
+    const int endInBytes = end * fileHandler.getSampleRate() * 2;
+    const int sizeInBytes = endInBytes - startInBytes;
+    const int blocks = end - start;
+    std::vector<char>dataBlockToConvert(sizeInBytes);
+    fileHandler.seekToPointer(startInBytes);
+    for (int i = 0; i < sizeInBytes; i+= SECOND) {
+        std::vector<char> buffer = fileHandler.getStreamFromOut();
+        std::memcpy(dataBlockToConvert.data() + i, buffer.data(), SECOND);
+    }
+    const ReverserCreator creator;
+    const auto reverser = creator.createConverter();
+    reverser->convert(dataBlockToConvert.data(), dataBlockToConvert.data(), blocks);
+    fileHandler.seekToPointer(startInBytes);
+    fileHandler.writeStream(dataBlockToConvert.data(), 0, blocks);
 }
 
 std::unique_ptr<ConverterController> MixerControllerCreator::createController(
@@ -73,6 +91,17 @@ std::unique_ptr<ConverterController> MixerControllerCreator::createController(
 std::string MixerControllerCreator::getControllerName() const {
     return "mix";
 }
+
+//creators
+std::unique_ptr<ConverterController> ReverserControllerCreator::createController(
+    const std::string &inputName, const std::string &outputName) {
+    return std::make_unique<ReverserController>(inputName, outputName);
+}
+
+std::string ReverserControllerCreator::getControllerName() const {
+    return "reverse";
+}
+
 
 std::unique_ptr<ConverterController> MuterControllerCreator::createController(
     const std::string &inputName, const std::string &outputName) {
@@ -91,6 +120,7 @@ void ControllerFactory::registerCreator(
 ControllerFactory::ControllerFactory() {
     registerCreator(std::make_unique<MixerControllerCreator>());
     registerCreator(std::make_unique<MuterControllerCreator>());
+    registerCreator(std::make_unique<ReverserControllerCreator>());
 }
 
 std::unique_ptr<ConverterController> ControllerFactory::createController(

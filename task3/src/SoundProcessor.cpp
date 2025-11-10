@@ -18,16 +18,15 @@ void SoundProcessor::run() {
     if (!config.is_open()) {
         throw FileException("Cannot open file " + configFilename);
     }
-    const ConfigHandler handler(&config);
+    const ConfigHandler configHandler(&config);
     std::string prevFilename = filenames[1];
     const std::string outputFilename = filenames[0];
     initializeOutput(outputFilename, prevFilename);
     while (!config.eof()) {
-        auto command = handler.getCommand();
+        auto command = configHandler.getCommand();
         if (isNotToConvert(command)) continue;
         ControllerFactory factory;
         std::unique_ptr<ConverterController> converterController;
-        //TODO: check filenames[command->getInputiIdx()]
         if (isInPlace(command)) {
             converterController = factory.createController(command->getName(), prevFilename, outputFilename);
         }

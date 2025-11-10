@@ -37,4 +37,12 @@ public:
     int getErrorCode() const override;
 };
 
+class ConsoleException : public SoundProcessorException {
+private:
+    int errorCode = 4;
+public:
+    explicit ConsoleException(const std::string& message);
+    int getErrorCode() const override;
+};
+
 #endif

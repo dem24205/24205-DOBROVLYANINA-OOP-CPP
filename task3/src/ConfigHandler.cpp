@@ -25,6 +25,36 @@ std::unique_ptr<ConfigCommand> ConfigHandler::getCommand() const {
     return command;
 }
 
+//commands
+ReverseCommand::ReverseCommand(const std::string &attr) {
+    std::istringstream iss(attr);
+    if (!(iss >> start >> end)) {
+        throw ConfigException("reverse: invalid parameters");
+    }
+    if (start < 0 || end < 0) {
+        throw ConfigException("reverse: invalid parameters");
+    }
+    if (start > end) {
+        throw ConfigException("reverse: invalid parameters");
+    }
+}
+
+int ReverseCommand::getStart() const {
+    return start;
+}
+
+int ReverseCommand::getEnd() const {
+    return end;
+}
+
+int ReverseCommand::getInputFileIdx() const {
+    return inputFileIdx;
+}
+
+std::string ReverseCommand::getName() const {
+    return "reverse";
+}
+
 MixCommand::MixCommand(const std::string &attr) {
     const size_t refPos = attr.find('$');
     if (refPos == std::string::npos) {
@@ -105,6 +135,7 @@ std::string CommentCommand::getName() const {
     return "comment";
 }
 
+//command creators
 std::string MixCommandCreator::getCommandName() const {
     return "mix";
 }
@@ -119,6 +150,14 @@ std::string MuteCommandCreator::getCommandName() const {
 
 std::unique_ptr<ConfigCommand> MuteCommandCreator::createCommand(const std::string& attr) const {
     return std::make_unique<MuteCommand>(attr);
+}
+
+std::string ReverseCommandCreator::getCommandName() const {
+    return "reverse";
+}
+
+std::unique_ptr<ConfigCommand> ReverseCommandCreator::createCommand(const std::string& attr) const {
+    return std::make_unique<ReverseCommand>(attr);
 }
 
 std::string CommentCreator::getCommandName() const {
@@ -136,6 +175,7 @@ void CommandFactory::registerCreator(std::unique_ptr<CommandCreator> creator) {
 CommandFactory::CommandFactory() {
     registerCreator(std::make_unique<MuteCommandCreator>());
     registerCreator(std::make_unique<MixCommandCreator>());
+    registerCreator(std::make_unique<ReverseCommandCreator>());
     registerCreator(std::make_unique<CommentCreator>());
 }
 

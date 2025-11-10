@@ -18,7 +18,15 @@ public:
     virtual int getInputFileIdx() const = 0;
 };
 
-//TODO: add one more command
+class ReverseCommand : public ConfigCommand {
+public:
+    explicit ReverseCommand(const std::string& attr);
+    std::string getName() const override;
+    int getStart() const override;
+    int getEnd() const override;
+    int getInputFileIdx() const override;
+
+};
 
 class CommentCommand : public ConfigCommand {
 public:
@@ -60,6 +68,12 @@ public:
 };
 
 class MuteCommandCreator : public CommandCreator {
+public:
+    std::string getCommandName() const override;
+    std::unique_ptr<ConfigCommand> createCommand(const std::string& attr) const override;
+};
+
+class ReverseCommandCreator : public CommandCreator {
 public:
     std::string getCommandName() const override;
     std::unique_ptr<ConfigCommand> createCommand(const std::string& attr) const override;

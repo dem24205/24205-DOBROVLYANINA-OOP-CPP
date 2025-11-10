@@ -29,6 +29,12 @@ public:
     void convert(int start, int end) override;
 };
 
+class ReverserController : public ConverterController {
+public:
+    using ConverterController::ConverterController;
+    void convert(int start, int end) override;
+};
+
 class ControllerCreator {
 public:
     virtual std::unique_ptr<ConverterController> createController(const std::string &inputName, const std::string& outputName) = 0;
@@ -43,6 +49,12 @@ public:
 };
 
 class MuterControllerCreator : public ControllerCreator {
+public:
+    std::unique_ptr<ConverterController> createController(const std::string &inputName, const std::string& outputName) override;
+    std::string getControllerName() const override;
+};
+
+class ReverserControllerCreator : public ControllerCreator {
 public:
     std::unique_ptr<ConverterController> createController(const std::string &inputName, const std::string& outputName) override;
     std::string getControllerName() const override;

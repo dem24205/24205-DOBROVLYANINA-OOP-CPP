@@ -11,7 +11,7 @@ protected:
     const int SECOND = 44100 * 2;
 public:
     virtual ~Converter() = default;
-    virtual char* convert (char* outStream, char* inStream) = 0;
+    virtual char* convert (char* outStream, char* inStream, int blocks) = 0;
     virtual std::string getName() const = 0;
     virtual std::string getDescription() const = 0;
     virtual std::string getAttributes() const = 0;
@@ -19,7 +19,7 @@ public:
 };
 
 class Muter : public Converter {
-    char* convert (char* outStream, char* inStream) override;
+    char* convert (char* outStream, char* inStream, int blocks) override;
     std::string getName() const override;
     std::string getDescription() const override;
     std::string getAttributes() const override;
@@ -27,7 +27,14 @@ class Muter : public Converter {
 };
 
 class Mixer : public Converter {
-    char* convert (char* outStream, char* inStream) override;
+    char* convert (char* outStream, char* inStream, int blocks) override;
+    std::string getName() const override;
+    std::string getDescription() const override;
+    std::string getAttributes() const override;
+};
+
+class Reverser : public Converter {
+    char* convert (char* outStream, char* inStream, int blocks) override;
     std::string getName() const override;
     std::string getDescription() const override;
     std::string getAttributes() const override;
@@ -48,6 +55,12 @@ public:
 
 class MixerCreator : public ConverterCreator {
 public :
+    std::unique_ptr<Converter> createConverter() const override;
+    std::string getName() const override;
+};
+
+class ReverserCreator : public ConverterCreator {
+public:
     std::unique_ptr<Converter> createConverter() const override;
     std::string getName() const override;
 };

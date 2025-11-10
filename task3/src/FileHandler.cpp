@@ -16,7 +16,6 @@ FileHandler::FileHandler(const std::string &inputFilename, const std::string &ou
         }
     }
     output.open(outputFilename, std::ios::binary | std::ios::in | std::ios::out);
-    //TODO: move in help func?
     const bool isOutputOpen = output.is_open() && output.peek() != -1;
     WAVHeaderParser outputParser;
     if (isOutputOpen) {
@@ -59,6 +58,10 @@ void FileHandler::seekToDataStart() {
     }
 }
 
+void FileHandler::seekToPointer(const int offset) {
+    output.seekp(outputHeaderEnd + offset, std::ios::beg);
+}
+
 int FileHandler::getOutputDataSize() const {
     return outputSubchunk2Size;
 }
@@ -87,7 +90,6 @@ void FileReader::read(std::istream& input, char* buffer, const int size) {
     input.read(buffer, size);
 }
 
-
 std::vector<char> FileHandler::getStreamFromIn() {
     std::vector<char> buffer(SECOND);
     FileReader::read(input, buffer.data(), SECOND);
@@ -100,7 +102,7 @@ std::vector<char> FileHandler::getStreamFromOut() {
     return buffer;
 }
 
-void FileHandler::writeStream(const char* buffer, const int offset) {
+void FileHandler::writeStream(const char* buffer, const int offset, const int blocks) {
     moveWriterPointer(offset);
-    FileWriter::write(output, buffer, SECOND);
+    FileWriter::write(output, buffer, SECOND * blocks);
 }

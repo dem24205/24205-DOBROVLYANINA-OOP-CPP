@@ -1,7 +1,7 @@
 #include "Converters.h"
 #include "ConverterControllers.h"
 
-char* Muter::convert(char* outStream, char* inStream) {
+char* Muter::convert(char* outStream, char* inStream, int blocks) {
     for (int i = 0; i < SECOND; i+=2) {;
         *reinterpret_cast<int16_t*>(outStream + i) = 0;
     }
@@ -25,7 +25,38 @@ std::string MuterCreator::getName() const {
     return "muter";
 }
 
-char* Mixer::convert(char *outStream, char *inStream) {
+char* Reverser::convert(char* outStream, char* inStream, const int blocks) {
+    const int size = SECOND * blocks;
+    for (int i = 0; i < size / 2; i += 2) {
+        int j = size - i - 2;
+        auto* left = reinterpret_cast<int16_t*>(outStream + i);
+        auto* right = reinterpret_cast<int16_t*>(outStream + j);
+        std::swap(*left, *right);
+    }
+    return outStream;
+}
+
+std::string Reverser::getName() const {
+    return "Reverser";
+}
+
+std::string Reverser::getDescription() const {
+    return "Reverses a wave file from begin to end.";
+}
+
+std::string Reverser::getAttributes() const {
+    return "reverse <begin[sec.]> <end[sec.]>";
+}
+
+std::unique_ptr<Converter> ReverserCreator::createConverter() const {
+    return std::make_unique<Reverser>();
+}
+
+std::string ReverserCreator::getName() const {
+    return "reverser";
+}
+
+char* Mixer::convert(char *outStream, char *inStream, int blocks) {
     for (int i = 0; i < SECOND; i += 2) {
         const int16_t outSample = *reinterpret_cast<int16_t*>(outStream + i);
         const int16_t inSample = *reinterpret_cast<int16_t*>(inStream + i);
@@ -63,6 +94,7 @@ void ConverterFactory::registerCreator(
 ConverterFactory::ConverterFactory() {
     registerCreator(std::make_unique<MixerCreator>());
     registerCreator(std::make_unique<MuterCreator>());
+    registerCreator(std::make_unique<ReverserCreator>());
 }
 
 std::vector<std::string> ConverterFactory::getAvailableConverterNames() const {
