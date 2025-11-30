@@ -2,7 +2,6 @@
 #define TUPLEPRINTER_H
 
 #include <tuple>
-#include <iostream>
 
 template<int Index, typename Ch, typename Tr, typename ...Args>
 class TuplePrinter {
