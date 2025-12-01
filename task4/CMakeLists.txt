@@ -24,6 +24,7 @@ include(GoogleTest)
 add_executable(test_tuple_printer
         tst/TestTuplePrinter.cpp
         tst/TestCSVParser.cpp
+        tst/TestImprovedCSVParser.cpp
 )
 
 target_include_directories(test_tuple_printer PRIVATE ${CMAKE_SOURCE_DIR}/src)

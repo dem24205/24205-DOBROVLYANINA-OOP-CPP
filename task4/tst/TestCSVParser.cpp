@@ -82,7 +82,7 @@ TEST(CSVParserTest, ColumnCountMismatch) {
         for (const auto& row : parser) {
             // This should throw
         }
-    }, std::length_error);
+    }, CSVParserException);
 }
 
 TEST(IntegrationTest, ParseAndPrint) {
