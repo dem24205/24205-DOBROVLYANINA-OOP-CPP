@@ -3,7 +3,7 @@
 #include "CSVParser.h"
 
 //config: column delim
-TEST(CSVParserTest, CustomDelimiters) {
+TEST(ImprovedCSVParserTest, CustomDelimiters) {
     std::stringstream ss;
     ss << "1;John;25.5\n";
     ss << "2;Jane;30.0";
@@ -17,7 +17,7 @@ TEST(CSVParserTest, CustomDelimiters) {
 }
 
 //config: row delim
-TEST(CSVParserTest, CustomRowDelimiter) {
+TEST(ImprovedCSVParserTest, CustomRowDelimiter) {
     std::stringstream ss;
     ss << "1,John,25|2,Jane,30|3,Bob,35";
     CSVParserConfig config(',', '|', '"');
@@ -33,7 +33,7 @@ TEST(CSVParserTest, CustomRowDelimiter) {
 }
 
 //screening: unexpected symbols after escape
-TEST(CSVParserTest, UnexpectedCharsAfterQuote) {
+TEST(ImprovedCSVParserTest, UnexpectedCharsAfterQuote) {
     std::stringstream ss;
     ss << "1,\"John\"Smith,25\n";
     CSVParser<int, std::string, int> parser(ss);
@@ -44,7 +44,7 @@ TEST(CSVParserTest, UnexpectedCharsAfterQuote) {
 }
 
 //screening: simple valid test
-TEST(CSVParserTest, DelimiterInsideQuotes) {
+TEST(ImprovedCSVParserTest, DelimiterInsideQuotes) {
     std::stringstream ss;
     ss << "1,\"Doe, John\",25\n";
     ss << "2,\"Smith;Jane\",30";
@@ -58,7 +58,7 @@ TEST(CSVParserTest, DelimiterInsideQuotes) {
 }
 
 //screening: double quotes
-TEST(CSVParserTest, DoubleQuotesInsideField) {
+TEST(ImprovedCSVParserTest, DoubleQuotesInsideField) {
     std::stringstream ss;
     ss << "1,\"John \"\"The Rock\"\"\",25\n";
     CSVParser<int, std::string, int> parser(ss);
@@ -68,7 +68,7 @@ TEST(CSVParserTest, DoubleQuotesInsideField) {
 }
 
 //screening: unclosed quote
-TEST(CSVParserTest, UnclosedQuoteError) {
+TEST(ImprovedCSVParserTest, UnclosedQuoteError) {
     std::stringstream ss;
     ss << "1,\"Unclosed quote,2\n";
     CSVParser<int, std::string> parser(ss);
@@ -79,7 +79,7 @@ TEST(CSVParserTest, UnclosedQuoteError) {
 }
 
 //offset: skip header file
-TEST(CSVParserTest, SkipRows) {
+TEST(ImprovedCSVParserTest, SkipRows) {
     std::stringstream ss;
     ss << "Header1,Header2,Header3\n";
     ss << "1,John,25\n";
@@ -92,7 +92,7 @@ TEST(CSVParserTest, SkipRows) {
 }
 
 //exception: mismatch
-TEST(CSVParserTest, ColumnCountMismatch) {
+TEST(ImprovedCSVParserTest, ColumnCountMismatch) {
     std::stringstream ss;
     ss << "1,John,25,Extra\n";
     ss << "2,Jane";

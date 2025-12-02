@@ -3,6 +3,8 @@
 #include <iostream>
 #include <fstream>
 
+//invalid file
+//test file
 int main(const int argc, char *argv[]) {
     if (argc < 2) {
         std::cerr << "Input file was expected";
