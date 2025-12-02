@@ -1,6 +1,7 @@
 #ifndef TUPLEPRINTER_H
 #define TUPLEPRINTER_H
 
+#include <iostream>
 #include <tuple>
 
 template<int Index, typename Ch, typename Tr, typename ...Args>

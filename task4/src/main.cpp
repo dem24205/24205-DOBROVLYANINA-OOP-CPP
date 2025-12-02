@@ -1,8 +1,23 @@
+#include "CSVParser.h"
 #include "TuplePrinter.h"
 #include <iostream>
+#include <fstream>
 
-int main(void) {
-    std::tuple<bool, char, int> t{false, 'A', 100};
-    std::cout << t;
+int main(const int argc, char *argv[]) {
+    if (argc < 2) {
+        std::cerr << "Input file was expected";
+        return 1;
+    }
+    std::ifstream file;
+    file.open(argv[1]);
+    try {
+        CSVParser<int, std::string, int> parser(file, 1);
+        for (const auto& row : parser) {
+            std::cout << row << std::endl; //<<: print tuple
+        }
+    } catch (const CSVParserException& e) {
+        std::cerr << "[CSV Error]: " << e.what() << std::endl;
+        return 1;
+    }
     return 0;
 }
