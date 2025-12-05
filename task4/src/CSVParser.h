@@ -10,48 +10,68 @@
 #include <tuple>
 #include <vector>
 
+//CSV parser exception
+class CSVParserException : public std::runtime_error {
+public:
+    explicit CSVParserException(const std::string& message)
+        : std::runtime_error(message) {}
+};
+
+static void throwCSVParseError(size_t row, size_t column, const std::string& message) {
+    std::ostringstream oss;
+    oss << "Parse error at row " << row << ", column " << column << ": " << message;
+    throw CSVParserException(oss.str());
+}
+
 //tuple getter
 template<int Index, typename First, typename... Args>
 struct TupleGetter {
-    static std::tuple<First, Args...> getTuple(const std::vector<std::string>& line) {
+    static std::tuple<First, Args...> getTuple(const std::vector<std::string>& line, size_t rowCount) {
+        constexpr size_t totalColumns = 1 + sizeof...(Args);
         First temp;
         std::stringstream ss(line[Index]);
         ss >> temp;
-        return std::tuple_cat(std::make_tuple(temp), TupleGetter<Index - 1, Args...>::getTuple(line));
+        if (ss.fail() || !ss.eof()) {
+            size_t realColumn = totalColumns - Index;
+            std::ostringstream oss;
+            oss << "Failed to convert \"" << line[Index] << "\" to required type";
+            throwCSVParseError(rowCount, realColumn, oss.str());
+        }
+        return std::tuple_cat(std::make_tuple(temp),
+            TupleGetter<Index - 1, Args...>::getTuple(line, rowCount));
     }
 };
 
 template<int Index, typename... Args>
 struct TupleGetter<Index, std::string, Args...> {
-    static std::tuple<std::string, Args...> getTuple(const std::vector<std::string>& line) {
+    static std::tuple<std::string, Args...> getTuple(const std::vector<std::string>& line, size_t rowCount) {
         std::string temp = line[Index];
-        return std::tuple_cat(std::make_tuple(temp), TupleGetter<Index - 1, Args...>::getTuple(line));
+        return std::tuple_cat(std::make_tuple(temp), TupleGetter<Index - 1, Args...>::getTuple(line, rowCount));
     }
 };
 
 template<typename First, typename... Args>
 struct TupleGetter<0, First, Args...>{
-    static std::tuple<First, Args...> getTuple(const std::vector<std::string>& line) {
+    static std::tuple<First, Args...> getTuple(const std::vector<std::string>& line, size_t rowCount) {
+        constexpr size_t totalColumns = 1 + sizeof...(Args);
         First temp;
         std::stringstream ss(line[0]);
         ss >> temp;
+        if (ss.fail() || !ss.eof()) {
+            std::ostringstream oss;
+            oss << "Failed to convert \"" << line[0] << "\" to required type";
+            throwCSVParseError(rowCount, totalColumns, oss.str());
+        }
         return std::make_tuple(temp);
     }
 };
 
 template<typename... Args>
 struct TupleGetter<0, std::string, Args...> {
-    static std::tuple<std::string, Args...> getTuple(const std::vector<std::string>& line) {
+    static std::tuple<std::string, Args...> getTuple(const std::vector<std::string>& line, size_t rowCount) {
         std::string temp = line[0];
         return std::make_tuple(temp);
     }
-};
-
-//CSV parser exception
-class CSVParserException : public std::runtime_error {
-public:
-    explicit CSVParserException(const std::string& message)
-        : std::runtime_error(message) {}
 };
 
 //CSV parser config
@@ -91,12 +111,6 @@ class CSVParser {
         return line;
     }
 
-    void throwParseError(size_t column, const std::string& message) const {
-        std::ostringstream oss;
-        oss << "Parse error at row " << rowCount << ", column " << column << ": " << message;
-        throw CSVParserException(oss.str());
-    }
-
     std::vector<std::string> getWords(const std::string& line) {
         std::vector<std::string> result;
         std::string current;
@@ -117,7 +131,7 @@ class CSVParser {
                     }
                 } else {
                     if (!current.empty()) {
-                        throwParseError(column, "Unexpected quote inside unquoted field");
+                        throwCSVParseError(rowCount, column, "Unexpected quote inside unquoted field");
                     }
                     inQuotes = true;
                 }
@@ -128,14 +142,14 @@ class CSVParser {
                 ++column;
             } else {
                 if (justClosedQuote) {
-                    throwParseError(column, "Unexpected characters after closing quote");
+                    throwCSVParseError(rowCount, column, "Unexpected characters after closing quote");
                 }
                 current += ch;
             }
         }
 
         if (inQuotes) {
-            throwParseError(column, "Unterminated quoted field");
+            throwCSVParseError(rowCount, column, "Unterminated quoted field");
         }
 
         result.push_back(current);
@@ -158,7 +172,7 @@ class CSVParser {
                                   ", got " + std::to_string(words.size()) + ")");
         }
         std::reverse(words.begin(), words.end());
-        return TupleGetter<sizeof...(Args) - 1, Args...>::getTuple(words);
+        return TupleGetter<sizeof...(Args) - 1, Args...>::getTuple(words, rowCount);
     }
 
 public:

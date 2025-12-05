@@ -12,6 +12,10 @@ int main(const int argc, char *argv[]) {
     }
     std::ifstream file;
     file.open(argv[1]);
+    if (!file.is_open()) {
+        std::cerr << "Cannot open file: " << argv[1] << std::endl;
+        return 1;
+    }
     try {
         CSVParser<int, std::string, int> parser(file, 1);
         for (const auto& row : parser) {
